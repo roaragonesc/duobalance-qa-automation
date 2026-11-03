@@ -1,0 +1,101 @@
+name: DuoBalance isolated local QA
+
+on:
+  workflow_dispatch:
+    inputs:
+      suite:
+        description: Suite to execute with ephemeral local services
+        type: choice
+        options: [api, web-api, both]
+        default: both
+      app_ref:
+        description: DuoBalance application revision to test
+        type: string
+        default: main
+
+permissions:
+  contents: read
+
+jobs:
+  api:
+    if: inputs.suite == 'api' || inputs.suite == 'both'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      DUOBALANCE_APP_PATH: ${{ github.workspace }}/application
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: automation
+      - uses: actions/checkout@v4
+        with:
+          repository: roaragonesc/duobalance
+          ref: ${{ inputs.app_ref }}
+          path: application
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: |
+            automation/package-lock.json
+            application/backend/package-lock.json
+      - run: npm ci
+        working-directory: automation
+      - run: npm ci
+        working-directory: application/backend
+      - run: npm run typecheck
+        working-directory: automation
+      - run: npm run test:api:local
+        working-directory: automation
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: isolated-api-results
+          path: |
+            automation/playwright-report/local-api/
+            automation/test-results/local-api/
+          retention-days: 14
+
+  web-api:
+    if: inputs.suite == 'web-api' || inputs.suite == 'both'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      DUOBALANCE_APP_PATH: ${{ github.workspace }}/application
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: automation
+      - uses: actions/checkout@v4
+        with:
+          repository: roaragonesc/duobalance
+          ref: ${{ inputs.app_ref }}
+          path: application
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: |
+            automation/package-lock.json
+            application/package-lock.json
+            application/backend/package-lock.json
+      - run: npm ci
+        working-directory: automation
+      - run: npm ci
+        working-directory: application
+      - run: npm ci
+        working-directory: application/backend
+      - run: npx playwright install --with-deps chromium
+        working-directory: automation
+      - run: npm run test:e2e:local
+        working-directory: automation
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: isolated-web-api-results
+          path: |
+            automation/playwright-report/local-api-e2e/
+            automation/test-results/local-api-e2e/
+          retention-days: 14
