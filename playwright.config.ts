@@ -1,8 +1,8 @@
 import { defineConfig, devices } from '@playwright/test'
-import { frontendURL } from './src/config/environment'
+import { frontendURL, apiURL } from './src/config/environment'
 
 export default defineConfig({
-  testDir: './tests/web',
+  testDir: './tests',
   testMatch: '*.spec.ts',
   fullyParallel: true,
   timeout: 60_000,
@@ -21,5 +21,12 @@ export default defineConfig({
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
   },
-  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
+  projects: [
+    { name: 'chromium', testMatch: '**/web/*.spec.ts', use: { ...devices['Desktop Chrome'] } },
+    {
+      name: 'api',
+      testMatch: '**/api/*.spec.ts',
+      use: { baseURL: apiURL, extraHTTPHeaders: { Origin: new URL(frontendURL).origin } },
+    },
+  ],
 })

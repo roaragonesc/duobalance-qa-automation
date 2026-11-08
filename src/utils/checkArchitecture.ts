@@ -39,38 +39,46 @@ for (const entry of readdirSync(tests, { withFileTypes: true })) {
   }
 }
 
-const numbers: number[] = []
-for (const path of files(join(tests, 'web'), '.spec.ts')) {
-  const source = readFileSync(path, 'utf8')
-  const testCount = source.match(/^test\(/gm)?.length ?? 0
-  if (testCount !== 1) report(path, `debe contener exactamente un test (tiene ${testCount})`)
+for (const suite of ['web', 'api'] as const) {
+  const numbers: number[] = []
+  for (const path of files(join(tests, suite), '.spec.ts')) {
+    const source = readFileSync(path, 'utf8')
+    const testCount = source.match(/^test\(/gm)?.length ?? 0
+    if (testCount !== 1) report(path, `debe contener exactamente un test (tiene ${testCount})`)
 
-  const title = source.match(/^test\('([^']+)'/m)?.[1] ?? ''
-  if (!/^TC\d+_web_[a-z]/.test(title)) report(path, `el titulo "${title}" debe seguir TC<n>_web_<nombre>`)
-  if (basename(path) !== `${title}.spec.ts`)
-    report(path, `el archivo debe llamarse igual que el titulo: ${title}.spec.ts`)
-  numbers.push(Number(title.match(/^TC(\d+)_/)?.[1]))
+    const title = source.match(/^test\('([^']+)'/m)?.[1] ?? ''
+    if (!new RegExp(`^TC\\d+_${suite}_[a-z]`).test(title))
+      report(path, `el titulo "${title}" debe seguir TC<n>_${suite}_<nombre>`)
+    if (basename(path) !== `${title}.spec.ts`)
+      report(path, `el archivo debe llamarse igual que el titulo: ${title}.spec.ts`)
+    numbers.push(Number(title.match(/^TC(\d+)_/)?.[1]))
 
-  if (/\btest\.skip\(/.test(source) && !/^\/\/ Requiere API real[^\n]*\ntest\.skip\(true, '[^']+'\)$/m.test(source)) {
-    report(
-      path,
-      'test.skip solo se permite para bloqueos de capacidad: comentario "// Requiere API real: ..." seguido de test.skip(true, \'motivo\')',
-    )
-  }
-  if (/\.(getBy\w+|locator)\(|\.goto\(/.test(source)) {
-    report(path, 'los specs web no contienen locators ni navegacion: usa Page Objects')
-  }
-}
-;[...numbers]
-  .sort((a, b) => a - b)
-  .forEach((value, index) => {
-    if (value !== index + 1) {
-      violations.push(
-        `tests/web: la numeracion debe ir de TC01 sin huecos ni repetidos (esperado TC${String(index + 1).padStart(2, '0')}, encontrado TC${value})`,
+    if (/\btest\.skip\(/.test(source) && !/^\/\/ Requiere API real[^\n]*\ntest\.skip\(true, '[^']+'\)$/m.test(source)) {
+      report(
+        path,
+        'test.skip solo se permite para bloqueos de capacidad: comentario "// Requiere API real: ..." seguido de test.skip(true, \'motivo\')',
       )
     }
-  })
-
+    if (suite === 'web' && /\.(getBy\w+|locator)\(|\.goto\(/.test(source)) {
+      report(path, 'los specs web no contienen locators ni navegacion: usa Page Objects')
+    }
+    if (suite === 'api' && /src\/(pages|components)\//.test(source)) {
+      report(path, 'los specs API no importan Pages ni componentes UI')
+    }
+    if (suite === 'web' && /fixtures\/(api|endpointApi|financeApi)'/.test(source)) {
+      report(path, 'los specs web no importan fixtures de la suite API')
+    }
+  }
+  numbers
+    .sort((a, b) => a - b)
+    .forEach((value, index) => {
+      if (value !== index + 1) {
+        violations.push(
+          `tests/${suite}: la numeracion debe ir de TC01 sin huecos ni repetidos (esperado TC${String(index + 1).padStart(2, '0')}, encontrado TC${value})`,
+        )
+      }
+    })
+}
 for (const path of files(join(src, 'pages'), '.ts')) {
   if (/\.\.\/fixtures\//.test(readFileSync(path, 'utf8'))) report(path, 'las Pages no dependen de fixtures')
 }

@@ -29,4 +29,12 @@ export default defineConfig(
       'playwright/expect-expect': ['warn', { assertFunctionNames: ['expect', 'expectOpen'] }],
     },
   },
+  {
+    files: ['tests/api/**/*.spec.ts'],
+    rules: {
+      // Los specs de API usan datos y bucles de comprobacion propios del contrato REST.
+      'playwright/no-conditional-in-test': 'off',
+      'playwright/consistent-spacing-between-blocks': 'off',
+    },
+  },
 )

@@ -20,7 +20,7 @@ Flujo de dependencias permitido: `tests (specs) -> src/fixtures -> src/pages -> 
 
 - Un spec usa solo fixtures y la API publica de las Pages. Sin locators, sin `goto`, sin acceder a componentes internos de una Page.
 - Una Page por pantalla de la aplicacion; cada locator y cada comportamiento tienen un unico propietario. Selectores iguales no demuestran un mismo contrato: verifica propietario, comportamiento y consumidores antes de reutilizar.
-- `tests/` contiene solo `web/` (y `api/` si se anade); todo el codigo del framework vive en `src/`.
+- `tests/` contiene solo `web/` y `api/`; no se borran tests: si no se pueden ejecutar se omiten con `// Requiere API real` + `test.skip`; al anadir o quitar tests la numeracion se renumera para ir de TC01 sin saltos, por suite; todo el codigo del framework vive en `src/`.
 - Las Pages no importan fixtures.
 - Informa `PASS`, `FAIL`, `BLOCKED` y `NOT_RUN` por separado. Un test omitido no es un aprobado.
 - Verificacion por defecto: `npm run typecheck`, `npm run lint`, `npm run format:check` y `npm run lint:arch` (incluye la sincronizacion del inventario). **No ejecutes Playwright salvo que el usuario lo pida**; si se pide, empieza por el spec afectado.

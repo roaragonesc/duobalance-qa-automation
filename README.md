@@ -34,7 +34,8 @@ referencia sin secretos.
 
 | Comando                | Para que                                                      |
 | ---------------------- | ------------------------------------------------------------- |
-| `npm test`             | Ejecuta la suite web (chromium)                               |
+| `npm run test:web`     | Ejecuta la suite web contra la demo (chromium)                |
+| `npm run test:api`     | Proyecto API: todos omitidos con motivo (sin backend)         |
 | `npm run test:list`    | Lista los tests sin ejecutarlos                               |
 | `npm run typecheck`    | Tipos TypeScript                                              |
 | `npm run lint`         | ESLint (TypeScript + reglas de Playwright)                    |
@@ -120,12 +121,13 @@ recursos del origen configurado y bloquean fetch/XHR, Supabase y rutas API/mock.
 - Cada prueba tiene almacenamiento independiente y reinicia sus datos por la UI. No se manipula `localStorage` desde
   los tests. Solo se usan cuentas ficticias.
 
-La suite tiene **66 tests** (`tests/web/TC01...TC66`):
+La suite web tiene **66 tests** (`tests/web/TC01...TC66`) y la de API **60** (`tests/api/TC01...TC60`):
 
 | Estado                | Tests | Contenido                                                                                                                              |
 | --------------------- | ----- | -------------------------------------------------------------------------------------------------------------------------------------- |
 | Se ejecutan           | 40    | Rutas protegidas, login, registro, validaciones, recuperacion, onboarding, panel mock, demo movil, gastos y balances exactos sobre el seed de demo |
-| Omitidos con motivo   | 26    | Escenarios de dos cuentas: requieren API real y datos compartidos entre sesiones; no se pueden probar en modo mock |
+| Omitidos con motivo (web) | 26 | Escenarios de dos cuentas: requieren API real y datos compartidos entre sesiones; no se pueden probar en modo mock |
+| Omitidos con motivo (API) | 60 | Suite REST completa: necesita un backend aislado, que queda fuera de este repositorio |
 
 Los omitidos conservan su codigo y llevan `// Requiere API real: ...` + `test.skip(true, '...')`. Los balances de
 los tests sobre el seed son expectativas fijas (por ejemplo 705,80 EUR compartidos; un gasto de 80,00 produce 785,80
@@ -133,15 +135,17 @@ EUR y una deuda de 314,20 EUR), no valores calculados a partir de la respuesta o
 
 ## GitHub Actions
 
-[Pipeline](.github/workflows/playwright.yml):
+Dos workflows independientes:
 
-- Se ejecuta en push a `main`, pull requests, ejecucion manual y a diario a las **03:00 Europe/Madrid** (dos
-  candidatos UTC; un filtro de hora local habilita solo el correspondiente al horario de verano/invierno).
-- Job `quality`: `typecheck`, `lint`, `format:check` y `lint:arch`.
-- Job `ui`: instala Chromium y ejecuta `npx playwright test` sobre `vars.BASE_URL` (por defecto Pages).
-- Informe HTML, screenshots y traces en fallos como artifact durante 14 dias. Sin reintentos ni
-  `continue-on-error`; permisos de solo lectura y sin credenciales.
-
+- [Calidad y tests](.github/workflows/playwright.yml): push a `main`, pull requests y ejecucion manual. Job `quality`
+  (`typecheck`, `lint`, `format:check`, `lint:arch`) y job `ui` (Chromium contra `vars.BASE_URL`, por defecto Pages).
+- [Nightly](.github/workflows/nightly.yml): **todos los dias a las 03:00 Europe/Madrid** (y a mano). Ejecuta
+  `--project=chromium`, es decir, los tests web que dependen solo de la demo publicada; los que requieren API real
+  estan omitidos con motivo y no forman parte de esta ejecucion. Usa dos candidatos UTC (01:00 y 02:00) y un filtro de
+  hora local para respetar el cambio de horario. GitHub puede retrasar o descartar ejecuciones programadas y solo las
+  lanza desde la rama predeterminada.
+- Informe HTML, screenshots y traces en fallos como artifact durante 14 dias. Sin reintentos ni `continue-on-error`;
+  permisos de solo lectura y sin credenciales.
 ## Limitaciones conocidas
 
 - La demo de Pages no comparte datos entre navegadores: los 26 tests de dos cuentas quedan omitidos. Para ejecutarlos

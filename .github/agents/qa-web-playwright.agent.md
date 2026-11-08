@@ -38,7 +38,7 @@ Restricciones: sin credenciales ni URLs fijas en specs o Pages, sin funciones au
 | `npm run lint` / `npm run format:check` | ESLint y Prettier (`npm run format` aplica el formato) |
 | `npm run lint:arch` | Arquitectura, nombres, numeracion e inventario (siempre) |
 | `npm run test:list` | Listar tests sin ejecutarlos |
-| `npm test` | Suite completa (solo si el usuario lo pide) |
+| `npm run test:web` / `npm run test:api` | Suite web contra la demo / proyecto API (omitido con motivo); solo si el usuario lo pide |
 | `npm run report` | Abrir el informe HTML |
 
 Documentos que este agente mantiene: `docs/COMPONENT_INVENTORY.md` (siempre al dia), `README.md` (si cambian comandos, decisiones o cobertura) y este archivo (si cambian las reglas).
@@ -48,14 +48,14 @@ Documentos que este agente mantiene: `docs/COMPONENT_INVENTORY.md` (siempre al d
 - Este repositorio es el framework independiente. La configuracion es `playwright.config.ts` (un proyecto `chromium`, `testDir: ./tests/web`).
 - Define primero proposito y limites: que se prueba, entornos, datos reutilizables o unicos por ejecucion, preparacion/limpieza y evidencias de diagnostico. Empieza pequeno y anade una capa solo cuando haya una necesidad real de compartir comportamiento, aislar dependencias o simplificar los tests.
 - **`tests/` contiene unicamente suites** (`web/`, y `api/` si se anade). Todo el codigo del framework vive en `src/`. Los specs importan desde `../../src/...`.
-- Un caso por archivo. **El archivo se llama exactamente como el titulo del test**: `TC<n>_web_<nombre>.spec.ts`. La numeracion va de `TC01` en adelante, sin huecos ni repetidos. Al anadir un test usa el siguiente numero libre; al borrar o insertar, renumera para mantener la secuencia.
+- Un caso por archivo. **El archivo se llama exactamente como el titulo del test**: `TC<n>_web_<nombre>.spec.ts` o `TC<n>_api_<nombre>.spec.ts`. Los tests de API se conservan siempre; si no pueden ejecutarse, solo se omiten con `// Requiere API real` + `test.skip`, nunca se borran. La numeracion va de `TC01` en adelante, sin huecos ni repetidos, independiente en web y api. Al anadir un test usa el siguiente numero libre; al borrar o insertar, renumera para mantener la secuencia.
 - Conserva IDs y pasos originales al migrar; no borres pruebas del repositorio de la aplicacion.
 
 ### Capas y propietarios
 
 | Carpeta | Responsabilidad |
 | --- | --- |
-| `tests/web/` | Specs: expresan el escenario y sus expectativas. Sin locators, sin navegacion (`goto`) y sin logica de UI. |
+| `tests/web/`, `tests/api/` | Specs: expresan el escenario y sus expectativas. Sin locators, sin navegacion (`goto`) y sin logica de UI. |
 | `src/pages/` | **Una Page Object por pantalla/pestana de la aplicacion** (Login, Register, Dashboard, Expenses, Incomes, Balance, Space, Profile, Onboarding...). Locators y operaciones con intencion de usuario. |
 | `src/components/` | Blocks reutilizables o con comportamiento propio (navegacion lateral, panel mock). Se componen dentro de Pages o se usan por fixture. |
 | `src/fixtures/` | Dependencias tipadas del test: Pages, usuarios, sesiones y **preparacion de escenarios** (`demoMember`, `signedInAna`, `spaceOwner`...). |
@@ -90,7 +90,7 @@ Documentos que este agente mantiene: `docs/COMPONENT_INVENTORY.md` (siempre al d
 
 - `npm run lint`: ESLint (`typescript-eslint` + `eslint-plugin-playwright`).
 - `npm run format:check`: Prettier (sin punto y coma, comillas simples, 120 columnas).
-- `npm run lint:arch` (`src/utils/checkArchitecture.ts`) falla ante: archivos de `src/` que no aparezcan en `docs/COMPONENT_INVENTORY.md`, carpetas o archivos en `tests/` distintos de `web/` y `api/`, titulos que no sigan `TC<n>_web_`, archivos que no se llamen igual que su titulo, numeracion que no vaya de TC01 sin huecos, mas de un test por spec, `test.skip` salvo como bloqueo de capacidad (comentario `// Requiere API real: ...` + `test.skip(true, 'motivo')`), `test.only`/`test.fixme`, `waitForTimeout`, `networkidle`, `force: true`, locators o `goto` en specs y Pages que dependen de fixtures. Ejecutalo junto al typecheck y mantenlo en CI.
+- `npm run lint:arch` (`src/utils/checkArchitecture.ts`) falla ante: archivos de `src/` que no aparezcan en `docs/COMPONENT_INVENTORY.md`, carpetas o archivos en `tests/` distintos de `web/` y `api/`, titulos que no sigan `TC<n>_web_` o `TC<n>_api_` segun su suite, archivos que no se llamen igual que su titulo, numeracion que no vaya de TC01 sin huecos por suite, specs API que importan Pages, mas de un test por spec, `test.skip` salvo como bloqueo de capacidad (comentario `// Requiere API real: ...` + `test.skip(true, 'motivo')`), `test.only`/`test.fixme`, `waitForTimeout`, `networkidle`, `force: true`, locators o `goto` en specs y Pages que dependen de fixtures. Ejecutalo junto al typecheck y mantenlo en CI.
 
 ## Entorno y seguridad
 
@@ -123,7 +123,7 @@ Documentos que este agente mantiene: `docs/COMPONENT_INVENTORY.md` (siempre al d
 
 - Orden de validacion: `npm run typecheck`, `npm run lint`, `npm run format:check`, `npm run lint:arch`, el spec afectado y, solo cuando proceda, `npx playwright test --list` y `npx playwright test`. Ejecuta Playwright cuando el usuario lo pida o el cambio no pueda comprobarse de otro modo; por defecto no lances suites completas para ahorrar tiempo y tokens.
 - Conserva informes HTML y JUnit, screenshots y traces en fallos; CI debe fallar ante cualquier fallo activo y ejecutar los mismos controles reproducibles que el equipo local.
-- La pipeline admite push a `main`, PR, ejecucion manual y horario diario de las 03:00 de Europe/Madrid, incluyendo cambio de horario.
+- Hay dos workflows: `playwright.yml` (push a `main`, PR y manual) y `nightly.yml` (diario a las 03:00 de Europe/Madrid, incluyendo cambio de horario, con `--project=chromium`).
 - Informa resultados reales: aprobados, fallidos y bloqueados, junto con sus requisitos. No confundas omisiones con aprobaciones.
 - Revisa periodicamente que cada abstraccion simplifica el mantenimiento. Un buen framework no se mide por carpetas o clases, sino porque los tests expresan intencion, la UI tiene propietarios claros, los fallos son diagnosticables y anadir cobertura no obliga a duplicar ni a debilitar lo existente.
 - No hagas commit ni push automaticamente salvo peticion expresa del usuario.

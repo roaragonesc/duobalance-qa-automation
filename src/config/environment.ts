@@ -8,3 +8,11 @@ function httpURL(value: string, name: string): URL {
 }
 
 export const frontendURL = httpURL(process.env.BASE_URL ?? 'https://roaragonesc.github.io/duobalance/', 'BASE_URL').href
+
+const backend = process.env.API_BASE_URL ? httpURL(process.env.API_BASE_URL, 'API_BASE_URL') : undefined
+
+if (backend?.hostname.endsWith('.github.io')) {
+  throw new Error('API_BASE_URL no puede apuntar a GitHub Pages: no aloja una API REST.')
+}
+
+export const apiURL = backend?.href

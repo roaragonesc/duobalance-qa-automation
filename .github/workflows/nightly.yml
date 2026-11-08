@@ -1,0 +1,57 @@
+name: DuoBalance nightly (demo)
+
+# Ejecucion diaria a las 03:00 Europe/Madrid de los tests web que dependen de la demo publicada
+# (sin API real). Los tests que requieren API real estan omitidos con motivo y no se lanzan aqui.
+on:
+  workflow_dispatch:
+  schedule:
+    # GitHub cron es UTC: las 03:00 de Madrid son las 01:00 UTC en verano y las 02:00 en invierno.
+    - cron: '0 1,2 * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nightly
+  cancel-in-progress: false
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    outputs:
+      run: ${{ steps.madrid.outputs.run }}
+    steps:
+      - id: madrid
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          if [ "$EVENT_NAME" != schedule ] || [ "$(TZ=Europe/Madrid date +%H)" = 03 ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  nightly:
+    needs: guard
+    if: needs.guard.outputs.run == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      BASE_URL: ${{ vars.BASE_URL || 'https://roaragonesc.github.io/duobalance/' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npx playwright test --project=chromium
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nightly-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14

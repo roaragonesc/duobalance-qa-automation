@@ -35,6 +35,9 @@ Una Page por pantalla de la aplicacion. Locators como campos `readonly` del cons
 | --- | --- | --- |
 | `index.ts` | Web sobre la demo publicada (mock) | Pages y componentes (`loginPage`, `expensesPage`, `balancePage`, `navigation`, `demoPanel`...), `partnerPage` (omite con motivo: requiere API real), escenarios de una cuenta (`anaAccount`, `signedInAna`, `spaceOwner`, `recoveryRequested`, `pendingAna`, `confirmedAna`, `demoMember`, `demoSharedExpense`, `demoPrivateExpense`) y de dos cuentas bloqueados en mock (`couple`, `sharedExpense`, `privateExpense`, `sharedAndPrivateExpenses`, `balancedExpenses`) |
 | `pagesDemo.ts` | Specs que solo necesitan `page` en la demo estatica | Bloqueo de peticiones externas y `/__mock/` |
+| `api.ts` | Base de la suite API | Aislamiento, `account`, `mailToken` |
+| `financeApi.ts` | API con espacio compartido | `actors`, `household`, `send` |
+| `endpointApi.ts` | API por endpoint | `registeredAccount`, `confirmedAccount`, `authenticatedAccount`, `pendingInvitation`, `expense`, `income`, `settlementId`, `today` |
 
 ## Datos (`src/data/`)
 
@@ -48,7 +51,19 @@ Una Page por pantalla de la aplicacion. Locators como campos `readonly` del cons
 
 | Archivo | Descripcion |
 | --- | --- |
-| `environment.ts` | `BASE_URL` validada (`frontendURL`) |
+| `environment.ts` | `BASE_URL` y `API_BASE_URL` validadas (`frontendURL`, `apiURL`) |
+| `localEnvironment.ts` | Entorno local aislado para la suite API (puertos, base aleatoria, buzon de correo) |
+
+## Integracion local (`src/integration/`)
+
+| Archivo | Descripcion |
+| --- | --- |
+| `runApiServer.ts` | Arranca el backend aislado |
+| `runFrontend.ts` | Arranca el frontend local |
+| `apiTeardown.ts` | Limpia base, servicios y buzon propios |
+| `backendDatabase.ts` | Acceso a la base de test |
+| `backendSeed.ts` | Seed del backend |
+| `runLocalApiTests.ts` | Lanzador de la suite API local |
 
 ## Utilidades (`src/utils/`)
 
@@ -65,5 +80,6 @@ Una Page por pantalla de la aplicacion. Locators como campos `readonly` del cons
 | Suite | Archivos | Numeracion | Notas |
 | --- | --- | --- | --- |
 | `tests/web/` | `TC<n>_web_<nombre>.spec.ts` | TC01-TC66 | 40 se ejecutan; 26 de dos cuentas se omiten con `// Requiere API real` |
+| `tests/api/` | `TC<n>_api_<nombre>.spec.ts` | TC01-TC60 | Los 60 se omiten con `// Requiere API real` (necesitan un backend REST aislado) |
 
 Ejemplo de referencia: `tests/web/TC23_web_crearUnGastoIndividualDesdeLaPrimeraCuenta.spec.ts`.
