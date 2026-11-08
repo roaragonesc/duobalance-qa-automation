@@ -1,0 +1,23 @@
+{
+  "setup": {
+    "account": {
+      "email": "api@duobalance.test",
+      "name": "Cuenta API",
+      "password": "Pruebas1234!"
+    },
+    "confirmationSubject": "Confirma tu cuenta de DuoBalance",
+    "httpStatuses": {
+      "registered": 202,
+      "confirmed": 204,
+      "authenticated": 200
+    }
+  },
+  "inputs": {
+    "toBe": 403
+  },
+  "expected": {
+    "httpStatus": 200,
+    "pattern": "^[a-f0-9]{64}$",
+    "httpStatus1": 204
+  }
+}

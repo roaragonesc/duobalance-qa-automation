@@ -1,0 +1,18 @@
+{
+  "setup": {
+    "journeyUsers": {
+      "a": {
+        "name": "Ana",
+        "email": "ana.e2e@example.test",
+        "password": "Pruebas1234!"
+      }
+    }
+  },
+  "inputs": {},
+  "expected": {
+    "toHaveValue": "",
+    "toHaveAccessibleDescription": "El correo electrónico es obligatorio.",
+    "toHaveAccessibleDescription1": "La contraseña es obligatoria.",
+    "toHaveAttribute": "true"
+  }
+}

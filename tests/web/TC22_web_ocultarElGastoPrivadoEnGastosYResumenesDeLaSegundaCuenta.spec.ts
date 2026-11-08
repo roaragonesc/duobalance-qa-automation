@@ -1,8 +1,13 @@
 import { expect, test } from '../../src/fixtures'
-import { journeyUsers } from '../../src/data/journeyUsers'
+
 import { DashboardPage } from '../../src/pages/DashboardPage'
 import { ExpensesPage } from '../../src/pages/ExpensesPage'
 import { ProfilePage } from '../../src/pages/ProfilePage'
+import testData from '../../src/data/testData/web/TC22_web_ocultarElGastoPrivadoEnGastosYResumenesDeLaSegundaCuenta.json'
+import { defineCaseData } from '../../src/utils/caseData'
+
+const data = defineCaseData(testData)
+test.use({ caseData: data.setup })
 
 // Requiere API real: necesita dos sesiones con datos compartidos y no se puede probar en modo mock.
 test.skip(true, 'Requiere API real: no se puede probar en modo mock (demo de GitHub Pages).')
@@ -17,19 +22,19 @@ test('TC22_web_ocultarElGastoPrivadoEnGastosYResumenesDeLaSegundaCuenta', async 
 
   await test.step('1. Luis abre su perfil y comprueba que es Luis', async () => {
     await luisProfile.visit()
-    await expect(luisProfile.nameHeading(journeyUsers.b.name)).toBeVisible()
-    await expect(luisProfile.emailText(journeyUsers.b.email)).toBeVisible()
+    await expect(luisProfile.nameHeading(data.setup.journeyUsers.b.name)).toBeVisible()
+    await expect(luisProfile.emailText(data.setup.journeyUsers.b.email)).toBeVisible()
   })
 
   await test.step('2. Luis abre la lista de gastos y no ve el gasto privado de Ana', async () => {
     await luisExpenses.visit()
     await expect(luisExpenses.noExpensesHeading).toBeVisible()
-    await expect(luisExpenses.main).not.toContainText('Peluquería E2E')
+    await expect(luisExpenses.main).not.toContainText(data.expected.toContainText)
   })
 
   await test.step('3. Luis abre el panel y no ve el gasto privado de Ana', async () => {
     await luisDashboard.visit()
     await expect(luisDashboard.noExpensesHeading).toBeVisible()
-    await expect(luisDashboard.main).not.toContainText('Peluquería E2E')
+    await expect(luisDashboard.main).not.toContainText(data.expected.toContainText)
   })
 })

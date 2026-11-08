@@ -1,0 +1,44 @@
+{
+  "setup": {
+    "demoUser": "rocio",
+    "demoExpenses": {
+      "shared": {
+        "description": "Compra compartida Pages",
+        "amount": "80,00",
+        "category": "food",
+        "individual": false
+      }
+    },
+    "demoUsers": {
+      "rocio": {
+        "email": "rocio@duobalance.test",
+        "name": "Rocío",
+        "password": "Demo1234!"
+      }
+    }
+  },
+  "inputs": {
+    "section": "Espacio",
+    "sectionChoices": {
+      "Balance": {
+        "section": "Balance"
+      }
+    },
+    "editAmount": "100,00"
+  },
+  "expected": {
+    "heading": "Casa",
+    "toContainText": "2 de 2",
+    "toHaveCount": 1,
+    "toContainText1": "80,00",
+    "toContainText2": "Compartido",
+    "cell": "Tú",
+    "toContainText3": "785,80",
+    "toContainText4": "392,90",
+    "toContainText5": "187,10",
+    "toContainText6": "314,20",
+    "toContainText7": "100,00",
+    "toContainText8": "805,80",
+    "toContainText9": "304,20"
+  }
+}

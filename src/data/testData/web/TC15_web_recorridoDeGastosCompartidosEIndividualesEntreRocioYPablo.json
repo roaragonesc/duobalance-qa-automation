@@ -1,0 +1,65 @@
+{
+  "setup": {
+    "demoUser": "rocio",
+    "demoExpenses": {
+      "shared": {
+        "description": "Compra compartida Pages",
+        "amount": "80,00",
+        "category": "food",
+        "individual": false
+      },
+      "private": {
+        "description": "Gasto privado Pages",
+        "amount": "35,00",
+        "individual": true,
+        "category": "food"
+      },
+      "partnerShared": {
+        "description": "Gasolina compartida Pages",
+        "amount": "40,00",
+        "category": "food",
+        "individual": false
+      },
+      "partnerPrivate": {
+        "description": "Gasto privado de Pablo Pages",
+        "amount": "25,00",
+        "individual": true,
+        "category": "food"
+      }
+    },
+    "demoUsers": {
+      "rocio": {
+        "email": "rocio@duobalance.test",
+        "name": "Rocío",
+        "password": "Demo1234!"
+      },
+      "pablo": {
+        "email": "pablo@duobalance.test",
+        "name": "Pablo",
+        "password": "Demo1234!"
+      }
+    }
+  },
+  "inputs": {
+    "demoUser": "pablo",
+    "demoUserChoices": {
+      "rocio": {
+        "demoUser": "rocio"
+      }
+    },
+    "expenseType": "individual",
+    "expenseTypeChoices": {
+      "all": {
+        "expenseType": "all"
+      }
+    }
+  },
+  "expected": {
+    "toHaveCount": 1,
+    "foodCategoryName": "Alimentación",
+    "toContainText": "Compartido",
+    "cell": "Tú",
+    "toContainText1": "Individual",
+    "toHaveCount2": 0
+  }
+}

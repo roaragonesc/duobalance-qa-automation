@@ -1,0 +1,37 @@
+{
+  "setup": {
+    "actors": {
+      "a": {
+        "name": "Ana",
+        "email": "finance-a@duobalance.test",
+        "password": "Pruebas1234!"
+      },
+      "b": {
+        "name": "Luis",
+        "email": "finance-b@duobalance.test",
+        "password": "Pruebas1234!"
+      },
+      "outsider": {
+        "name": "Tercero",
+        "email": "finance-outsider@duobalance.test",
+        "password": "Pruebas1234!"
+      }
+    },
+    "httpStatuses": {
+      "registered": 202,
+      "confirmed": 204,
+      "authenticated": 200
+    }
+  },
+  "inputs": {
+    "name": "Invitaciones",
+    "splitMethod": "equal"
+  },
+  "expected": {
+    "httpStatus": 201,
+    "httpStatus1": 404,
+    "httpStatus2": 200,
+    "toHaveLength": 2,
+    "httpStatus3": 409
+  }
+}

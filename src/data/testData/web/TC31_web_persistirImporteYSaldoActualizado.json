@@ -1,0 +1,37 @@
+{
+  "setup": {
+    "journeyUsers": {
+      "a": {
+        "name": "Ana",
+        "email": "ana.e2e@example.test",
+        "password": "Pruebas1234!"
+      },
+      "b": {
+        "name": "Luis",
+        "email": "luis.e2e@example.test",
+        "password": "Pruebas1234!"
+      }
+    },
+    "space": {
+      "name": "Hogar E2E",
+      "splitMethod": "equal"
+    },
+    "e2eExpenses": {
+      "supermarket": {
+        "description": "Supermercado E2E",
+        "amount": "80,00",
+        "category": "food",
+        "individual": false
+      }
+    }
+  },
+  "inputs": {
+    "editAmount": "Supermercado E2E",
+    "editAmount1": "100,00"
+  },
+  "expected": {
+    "toContainText": "50,00",
+    "row": "Supermercado E2E",
+    "toContainText2": "100,00"
+  }
+}

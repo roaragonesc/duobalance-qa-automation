@@ -1,0 +1,14 @@
+{
+  "setup": {
+    "account": {
+      "email": "api@duobalance.test",
+      "name": "Cuenta API",
+      "password": "Pruebas1234!"
+    }
+  },
+  "inputs": {},
+  "expected": {
+    "httpStatus": 202,
+    "httpStatus1": 401
+  }
+}

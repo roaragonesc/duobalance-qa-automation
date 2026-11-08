@@ -16,10 +16,10 @@ import { RegisterPage } from '../pages/RegisterPage'
 import { ResetPasswordPage } from '../pages/ResetPasswordPage'
 import { SpacePage } from '../pages/SpacePage'
 import { registerUser, prepareSharedSpace } from '../utils/sharedSpace'
-import { journeyUsers } from '../data/journeyUsers'
-import { demoExpenses, e2eExpenses } from '../data/expenses'
+import { requiredData, type WebSetup } from '../utils/caseData'
 
 type E2EFixtures = {
+  caseData: WebSetup
   demoPanel: DemoPanel
   navigation: AppNavigation
   scenarios: DemoScenarios
@@ -58,71 +58,81 @@ const requiresRealApiReason =
   'Requiere API real y dos sesiones con datos compartidos; no se puede probar en modo mock (demo de GitHub Pages).'
 
 export const test = base.extend<E2EFixtures>({
-  anaAccount: async ({ page, demoPanel, resetMockData: _reset }, provideFixtures) => {
-    await registerUser(page, journeyUsers.a)
+  caseData: [{}, { option: true }],
+  anaAccount: async ({ page, demoPanel, caseData, resetMockData: _reset }, provideFixtures) => {
+    await registerUser(page, requiredData(caseData.journeyUsers?.a, 'setup.journeyUsers.a'))
     await demoPanel.selectUser(null)
     await provideFixtures()
   },
-  pendingAna: async ({ registerPage, resetMockData: _reset }, provideFixtures) => {
+  pendingAna: async ({ registerPage, caseData, resetMockData: _reset }, provideFixtures) => {
+    const ana = requiredData(caseData.journeyUsers?.a, 'setup.journeyUsers.a')
     await registerPage.visit()
-    await registerPage.register(journeyUsers.a)
-    await registerPage.confirmationLink(journeyUsers.a.email).waitFor()
+    await registerPage.register(ana)
+    await registerPage.confirmationLink(ana.email).waitFor()
     await provideFixtures()
   },
-  confirmedAna: async ({ pendingAna: _pending, registerPage, onboardingPage }, provideFixtures) => {
-    await registerPage.confirm(journeyUsers.a.email)
+  confirmedAna: async ({ pendingAna: _pending, registerPage, onboardingPage, caseData }, provideFixtures) => {
+    await registerPage.confirm(requiredData(caseData.journeyUsers?.a, 'setup.journeyUsers.a').email)
     await onboardingPage.expectOpen()
     await provideFixtures()
   },
-  signedInAna: async ({ anaAccount: _ana, loginPage, onboardingPage }, provideFixtures) => {
-    await loginPage.signIn(journeyUsers.a.email, journeyUsers.a.password)
+  signedInAna: async ({ anaAccount: _ana, loginPage, onboardingPage, caseData }, provideFixtures) => {
+    const ana = requiredData(caseData.journeyUsers?.a, 'setup.journeyUsers.a')
+    await loginPage.signIn(ana.email, ana.password)
     await onboardingPage.expectOpen()
     await provideFixtures()
   },
-  spaceOwner: async ({ signedInAna: _signedIn, page, onboardingPage }, provideFixtures) => {
-    await onboardingPage.createSpace('Hogar E2E', 'equal')
+  spaceOwner: async ({ signedInAna: _signedIn, page, onboardingPage, caseData }, provideFixtures) => {
+    const space = requiredData(caseData.space, 'setup.space')
+    await onboardingPage.createSpace(space.name, space.splitMethod)
     await page.waitForURL(/\/onboarding\/invite$/)
     await provideFixtures()
   },
-  recoveryRequested: async ({ anaAccount: _ana, loginPage, forgotPasswordPage }, provideFixtures) => {
+  recoveryRequested: async ({ anaAccount: _ana, loginPage, forgotPasswordPage, caseData }, provideFixtures) => {
     await loginPage.openPasswordRecovery()
-    await forgotPasswordPage.requestLink(journeyUsers.a.email)
+    await forgotPasswordPage.requestLink(requiredData(caseData.journeyUsers?.a, 'setup.journeyUsers.a').email)
     await provideFixtures()
   },
-  couple: async ({ page, partnerPage, resetMockData: _reset }, provideFixtures) => {
-    await prepareSharedSpace(page, partnerPage)
+  couple: async ({ page, partnerPage, caseData, resetMockData: _reset }, provideFixtures) => {
+    await prepareSharedSpace(
+      page,
+      partnerPage,
+      requiredData(caseData.journeyUsers?.a, 'setup.journeyUsers.a'),
+      requiredData(caseData.journeyUsers?.b, 'setup.journeyUsers.b'),
+      requiredData(caseData.space, 'setup.space'),
+    )
     await provideFixtures()
   },
-  sharedExpense: async ({ couple: _couple, expensesPage }, provideFixtures) => {
-    await expensesPage.addExpense(e2eExpenses.supermarket)
+  sharedExpense: async ({ couple: _couple, expensesPage, caseData }, provideFixtures) => {
+    await expensesPage.addExpense(requiredData(caseData.e2eExpenses?.supermarket, 'setup.e2eExpenses.supermarket'))
     await provideFixtures()
   },
-  privateExpense: async ({ couple: _couple, expensesPage }, provideFixtures) => {
-    await expensesPage.addExpense(e2eExpenses.hairdresser)
+  privateExpense: async ({ couple: _couple, expensesPage, caseData }, provideFixtures) => {
+    await expensesPage.addExpense(requiredData(caseData.e2eExpenses?.hairdresser, 'setup.e2eExpenses.hairdresser'))
     await provideFixtures()
   },
-  sharedAndPrivateExpenses: async ({ sharedExpense: _shared, expensesPage }, provideFixtures) => {
-    await expensesPage.addExpense(e2eExpenses.hairdresser)
+  sharedAndPrivateExpenses: async ({ sharedExpense: _shared, expensesPage, caseData }, provideFixtures) => {
+    await expensesPage.addExpense(requiredData(caseData.e2eExpenses?.hairdresser, 'setup.e2eExpenses.hairdresser'))
     await provideFixtures()
   },
-  balancedExpenses: async ({ sharedAndPrivateExpenses: _expenses, partnerPage }, provideFixtures) => {
+  balancedExpenses: async ({ sharedAndPrivateExpenses: _expenses, partnerPage, caseData }, provideFixtures) => {
     const partnerExpenses = new ExpensesPage(partnerPage)
     await partnerExpenses.visit()
-    await partnerExpenses.addExpense(e2eExpenses.fuel)
+    await partnerExpenses.addExpense(requiredData(caseData.e2eExpenses?.fuel, 'setup.e2eExpenses.fuel'))
     await provideFixtures()
   },
-  demoSharedExpense: async ({ demoMember: _member, expensesPage }, provideFixtures) => {
+  demoSharedExpense: async ({ demoMember: _member, expensesPage, caseData }, provideFixtures) => {
     await expensesPage.visit()
-    await expensesPage.addExpense(demoExpenses.shared)
+    await expensesPage.addExpense(requiredData(caseData.demoExpenses?.shared, 'setup.demoExpenses.shared'))
     await provideFixtures()
   },
-  demoPrivateExpense: async ({ demoMember: _member, expensesPage }, provideFixtures) => {
+  demoPrivateExpense: async ({ demoMember: _member, expensesPage, caseData }, provideFixtures) => {
     await expensesPage.visit()
-    await expensesPage.addExpense(demoExpenses.private)
+    await expensesPage.addExpense(requiredData(caseData.demoExpenses?.private, 'setup.demoExpenses.private'))
     await provideFixtures()
   },
-  demoMember: async ({ demoPanel, resetMockData: _reset }, provideFixtures) => {
-    await demoPanel.selectUser('rocio')
+  demoMember: async ({ demoPanel, caseData, resetMockData: _reset }, provideFixtures) => {
+    await demoPanel.selectUser(requiredData(caseData.demoUser, 'setup.demoUser'))
     await provideFixtures()
   },
   partnerPage: async ({ page }, provideFixtures) => {

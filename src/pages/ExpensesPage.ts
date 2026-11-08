@@ -6,6 +6,7 @@ type ExpenseInput = {
   description: string
   amount: string
   individual?: boolean
+  category?: string
 }
 
 export type ExpenseTypeFilter = 'all' | 'shared' | 'individual'
@@ -45,11 +46,11 @@ export class ExpensesPage extends BasePage {
     this.saveButton = page.getByRole('button', { name: 'Guardar cambios' })
   }
 
-  async addExpense({ description, amount, individual = false }: ExpenseInput) {
+  async addExpense({ description, amount, individual = false, category = 'food' }: ExpenseInput) {
     await this.addLink.click()
     await this.conceptField.fill(description)
     await this.amountField.fill(amount)
-    await this.categoryField.selectOption('food')
+    await this.categoryField.selectOption(category)
     if (individual) {
       await this.individualOption.check()
     }

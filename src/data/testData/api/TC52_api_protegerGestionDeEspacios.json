@@ -1,0 +1,40 @@
+{
+  "setup": {
+    "actors": {
+      "a": {
+        "name": "Ana",
+        "email": "finance-a@duobalance.test",
+        "password": "Pruebas1234!"
+      },
+      "b": {
+        "name": "Luis",
+        "email": "finance-b@duobalance.test",
+        "password": "Pruebas1234!"
+      },
+      "outsider": {
+        "name": "Tercero",
+        "email": "finance-outsider@duobalance.test",
+        "password": "Pruebas1234!"
+      }
+    },
+    "httpStatuses": {
+      "registered": 202,
+      "confirmed": 204,
+      "authenticated": 200
+    }
+  },
+  "inputs": {
+    "name": "Hogar vacío",
+    "splitMethod": "equal",
+    "nameRequest": "Duplicado",
+    "name3": "Nuevo nombre"
+  },
+  "expected": {
+    "httpStatus": 201,
+    "httpStatus1": 409,
+    "httpStatus2": 404,
+    "httpStatus4": 200,
+    "toBe": "Nuevo nombre",
+    "httpStatus5": 204
+  }
+}

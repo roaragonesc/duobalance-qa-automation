@@ -1,0 +1,18 @@
+{
+  "setup": {
+    "demoUser": "rocio",
+    "demoUsers": {
+      "rocio": {
+        "email": "rocio@duobalance.test",
+        "name": "Rocío",
+        "password": "Demo1234!"
+      }
+    }
+  },
+  "inputs": {
+    "invite": "tercero.e2e@example.test"
+  },
+  "expected": {
+    "toHaveText": "Este espacio ya tiene dos miembros."
+  }
+}

@@ -1,8 +1,12 @@
 import { expect, test } from '../../src/fixtures'
-import { journeyUsers } from '../../src/data/journeyUsers'
+import testData from '../../src/data/testData/web/TC08_web_recorridoDeRecuperacionDeContrasena.json'
+import { defineCaseData } from '../../src/utils/caseData'
 
-const ana = journeyUsers.a
-const newPassword = 'NuevaClave123!'
+const data = defineCaseData(testData)
+test.use({ caseData: data.setup })
+
+const ana = data.setup.journeyUsers.a
+const newPassword = data.inputs.value
 
 test('TC08_web_recorridoDeRecuperacionDeContrasena', async ({
   anaAccount: _ana,
@@ -14,7 +18,7 @@ test('TC08_web_recorridoDeRecuperacionDeContrasena', async ({
   await test.step('1. El usuario solicita el enlace de recuperación y ve el aviso simulado', async () => {
     await loginPage.openPasswordRecovery()
     await forgotPasswordPage.requestLink(ana.email)
-    await expect(forgotPasswordPage.status).toContainText('Si existe una cuenta con ese correo')
+    await expect(forgotPasswordPage.status).toContainText(data.expected.toContainText)
   })
 
   await test.step('2. El usuario restablece la contraseña y vuelve al login', async () => {
@@ -25,7 +29,7 @@ test('TC08_web_recorridoDeRecuperacionDeContrasena', async ({
 
   await test.step('3. El usuario prueba la clave anterior, es rechazada, y entra con la nueva', async () => {
     await loginPage.signIn(ana.email, ana.password)
-    await expect(loginPage.alert).toHaveText(loginPage.invalidCredentialsMessage)
+    await expect(loginPage.alert).toHaveText(data.expected.invalidCredentialsMessage)
     await loginPage.signIn(ana.email, newPassword)
     await onboardingPage.expectOpen()
   })

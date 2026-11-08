@@ -1,0 +1,18 @@
+{
+  "setup": {
+    "journeyUsers": {
+      "a": {
+        "name": "Ana",
+        "email": "ana.e2e@example.test",
+        "password": "Pruebas1234!"
+      }
+    }
+  },
+  "inputs": {
+    "register": "OtraClave123!"
+  },
+  "expected": {
+    "toHaveAccessibleDescription": "Las contraseñas no coinciden.",
+    "toHaveCount": 0
+  }
+}

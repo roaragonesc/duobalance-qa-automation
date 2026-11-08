@@ -1,0 +1,17 @@
+{
+  "setup": {},
+  "inputs": {
+    "name": "",
+    "email": "incorrecto",
+    "password": "corta",
+    "confirmed": true,
+    "Origin": "http://otro-origen.test",
+    "email1": "cuenta@duobalance.test",
+    "password2": "Pruebas1234!"
+  },
+  "expected": {
+    "httpStatus": 400,
+    "toBe": "invalid_input",
+    "httpStatus3": 403
+  }
+}

@@ -1,7 +1,9 @@
 import { test as base, expect } from '@playwright/test'
 import { blockSupabaseRequests } from '../utils/networkGuard'
+import type { WebSetup } from '../utils/caseData'
 
-export const test = base.extend<{ localRequestsOnly: void }>({
+export const test = base.extend<{ localRequestsOnly: void; caseData: WebSetup }>({
+  caseData: [{}, { option: true }],
   localRequestsOnly: [
     async ({ context }, provideFixtures) => {
       const externalRequests = await blockSupabaseRequests(context)

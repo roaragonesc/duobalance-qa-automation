@@ -1,5 +1,10 @@
 import { readdir, readFile } from 'node:fs/promises'
 import { test, expect } from '../../src/fixtures/endpointApi'
+import testData from '../../src/data/testData/api/TC02_api_consultarOpenApi.json'
+import { defineCaseData } from '../../src/utils/caseData'
+
+const data = defineCaseData(testData)
+test.use({ caseData: data.setup })
 
 // Requiere API real: necesita un backend REST de testing aislado y no se puede probar en modo mock (demo de GitHub Pages).
 test.skip(true, 'Requiere API real: no se puede probar en modo mock (demo de GitHub Pages).')
@@ -9,9 +14,9 @@ test('TC02_api_consultarOpenApi', async ({ request }) => {
   let covered: string[] = []
   await test.step('1. El cliente consulta la documentación OpenAPI y comprueba su versión', async () => {
     const response = await request.get('api-docs')
-    expect(response.status()).toBe(200)
+    expect(response.status()).toBe(data.expected.httpStatus)
     const document: { openapi: string; paths: Record<string, Record<string, object>> } = await response.json()
-    expect(document.openapi).toBe('3.1.0')
+    expect(document.openapi).toBe(data.expected.toBe)
     operations = Object.entries(document.paths).flatMap(([path, methods]) =>
       Object.keys(methods).map((method) => `${method.toUpperCase()} ${path}`),
     )
@@ -22,7 +27,7 @@ test('TC02_api_consultarOpenApi', async ({ request }) => {
     const sources = await Promise.all(files.map((name) => readFile(new URL(name, directory), 'utf8')))
     const endpointSources = sources.filter((source) => {
       const id = /^test\('TC(\d+)_API_/m.exec(source)
-      return id !== null && Number(id[1]) <= 45
+      return id !== null && Number(id[1]) <= data.inputs.value
     })
     covered = endpointSources.flatMap((source) =>
       [...source.matchAll(/test\.step\('TC\d+_((?:get|post|patch|delete)[A-Z][A-Za-z0-9]*)'/g)].map((match) =>
@@ -32,8 +37,8 @@ test('TC02_api_consultarOpenApi', async ({ request }) => {
   })
   await test.step('3. El cliente comprueba que cada operación documentada tiene cobertura', async () => {
     const operationNames = operations.map((operation) => operation.replace(/[^A-Za-z0-9]/g, '').toLowerCase())
-    expect(covered).toHaveLength(45)
-    expect(new Set(covered).size).toBe(45)
+    expect(covered).toHaveLength(data.expected.toHaveLength)
+    expect(new Set(covered).size).toBe(data.expected.toBe1)
     expect(covered.sort()).toEqual(operationNames.sort())
   })
 })

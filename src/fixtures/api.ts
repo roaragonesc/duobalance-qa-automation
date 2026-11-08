@@ -4,12 +4,15 @@ import { resolve } from 'node:path'
 import { test as base, expect } from '@playwright/test'
 import { apiURL } from '../config/environment'
 import { assertDatabase, localApiURL, mailDirectory } from '../config/localEnvironment'
+import { requiredData, type ApiSetup } from '../utils/caseData'
 
 export const test = base.extend<{
+  caseData: ApiSetup
   apiIsolation: void
   account: { email: string; name: string; password: string }
   mailToken: (subject: string) => Promise<string>
 }>({
+  caseData: [{}, { option: true }],
   apiIsolation: [
     async ({ baseURL }, provideFixtures, testInfo) => {
       if (process.env.DUOBALANCE_LOCAL_MODE === 'api') {
@@ -27,11 +30,11 @@ export const test = base.extend<{
     },
     { auto: true },
   ],
-  account: async ({ request: _request }, provideFixtures) => {
+  account: async ({ request: _request, caseData }, provideFixtures) => {
+    const account = requiredData(caseData.account, 'setup.account')
     await provideFixtures({
-      email: `api-${randomUUID()}@duobalance.test`,
-      name: 'Cuenta API',
-      password: 'Pruebas1234!',
+      ...account,
+      email: account.email.replace('@', `-${randomUUID()}@`),
     })
   },
   mailToken: async ({ account }, provideFixtures) => {

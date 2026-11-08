@@ -1,4 +1,9 @@
 import { test, expect, send } from '../../src/fixtures/financeApi'
+import testData from '../../src/data/testData/api/TC58_api_limitarLiquidacionesConcurrentesYConservarHistorial.json'
+import { defineCaseData } from '../../src/utils/caseData'
+
+const data = defineCaseData(testData)
+test.use({ caseData: data.setup })
 
 // Requiere API real: necesita un backend REST de testing aislado y no se puede probar en modo mock (demo de GitHub Pages).
 test.skip(true, 'Requiere API real: no se puede probar en modo mock (demo de GitHub Pages).')
@@ -11,42 +16,53 @@ test('TC58_api_limitarLiquidacionesConcurrentesYConservarHistorial', async ({ ho
     const expense = await send(a, 'post', 'expenses', {
       spaceId,
       categoryId,
-      description: 'Común',
-      amountCents: 8000,
+      description: data.inputs.description,
+      amountCents: data.inputs.amountCents,
       date,
-      kind: 'shared',
+      kind: data.inputs.kind,
     })
-    expect(expense.status()).toBe(201)
+    expect(expense.status()).toBe(data.expected.httpStatus)
     id = (await expense.json()).expense._id
   })
   await test.step('2. El usuario A lanza dos liquidaciones simultáneas y solo una se acepta', async () => {
     const payments = await Promise.all(
-      [1, 2].map(() => send(a, 'post', `spaces/${spaceId}/settlements`, { date, amountCents: 3000, note: null })),
+      [data.inputs.map, data.inputs.map2].map(() =>
+        send(a, 'post', `spaces/${spaceId}/settlements`, {
+          date,
+          amountCents: data.inputs.amountCents3,
+          note: data.inputs.note,
+        }),
+      ),
     )
-    expect(payments.map((item) => item.status()).sort()).toEqual([201, 409])
+    expect(payments.map((item) => item.status()).sort()).toEqual([data.expected.httpStatus, data.expected.httpStatus4])
   })
   await test.step('3. El usuario A consulta el historial y comprueba que solo hay una liquidación', async () => {
     const history = await a.api.get(`spaces/${spaceId}/settlements`)
-    expect((await history.json()).settlements).toHaveLength(1)
+    expect((await history.json()).settlements).toHaveLength(data.expected.toHaveLength)
   })
   await test.step('4. El usuario A corrige el importe del gasto', async () => {
     expect(
       (
         await send(a, 'patch', `expenses/${id}`, {
           categoryId,
-          description: 'Corregido',
-          amountCents: 10000,
+          description: data.inputs.description5,
+          amountCents: data.inputs.amountCents6,
           date,
-          kind: 'shared',
+          kind: data.inputs.kind,
         })
       ).status(),
-    ).toBe(200)
+    ).toBe(data.inputs.toBe)
   })
   await test.step('5. El usuario A consulta el balance y comprueba la deuda acumulada', async () => {
     const balance = await a.api.get(`spaces/${spaceId}/balance`, { params: { month: date.slice(0, 7) } })
-    expect((await balance.json()).accumulated).toEqual({ amountCents: 2000, debtor: 'partner' })
+    expect((await balance.json()).accumulated).toEqual({
+      amountCents: data.expected.amountCents,
+      debtor: data.expected.debtor,
+    })
   })
   await test.step('6. El usuario A comprueba que el historial conserva una sola liquidación', async () => {
-    expect((await (await a.api.get(`spaces/${spaceId}/settlements`)).json()).settlements).toHaveLength(1)
+    expect((await (await a.api.get(`spaces/${spaceId}/settlements`)).json()).settlements).toHaveLength(
+      data.expected.toHaveLength,
+    )
   })
 })

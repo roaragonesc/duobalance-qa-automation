@@ -1,0 +1,18 @@
+{
+  "setup": {
+    "journeyUsers": {
+      "a": {
+        "name": "Ana",
+        "email": "ana.e2e@example.test",
+        "password": "Pruebas1234!"
+      }
+    }
+  },
+  "inputs": {
+    "value": "NuevaClave123!"
+  },
+  "expected": {
+    "toContainText": "Si existe una cuenta con ese correo",
+    "invalidCredentialsMessage": "El correo electrónico o la contraseña no son correctos."
+  }
+}

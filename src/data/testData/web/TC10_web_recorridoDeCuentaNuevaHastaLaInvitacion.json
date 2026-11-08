@@ -1,0 +1,26 @@
+{
+  "setup": {
+    "journeyUsers": {
+      "a": {
+        "name": "Ana",
+        "email": "ana.e2e@example.test",
+        "password": "Pruebas1234!"
+      },
+      "b": {
+        "name": "Luis",
+        "email": "luis.e2e@example.test",
+        "password": "Pruebas1234!"
+      }
+    }
+  },
+  "inputs": {
+    "createSpace": "Hogar E2E",
+    "splitMethod": "equal"
+  },
+  "expected": {
+    "toHaveValue": "",
+    "heading": "Hogar E2E",
+    "toContainText": "1 de 2",
+    "toHaveCount": 0
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "setup": {
+    "demoUsers": {
+      "rocio": {
+        "email": "rocio@duobalance.test",
+        "name": "Rocío",
+        "password": "Demo1234!"
+      }
+    }
+  },
+  "inputs": {},
+  "expected": {
+    "toHaveCount": 0
+  }
+}

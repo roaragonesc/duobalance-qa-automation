@@ -1,0 +1,51 @@
+{
+  "setup": {
+    "demoUser": "rocio",
+    "demoExpenses": {
+      "private": {
+        "description": "Gasto privado Pages",
+        "amount": "35,00",
+        "individual": true,
+        "category": "food"
+      },
+      "shared": {
+        "description": "Compra compartida Pages",
+        "amount": "80,00",
+        "category": "food",
+        "individual": false
+      }
+    },
+    "demoUsers": {
+      "rocio": {
+        "email": "rocio@duobalance.test",
+        "name": "Rocío",
+        "password": "Demo1234!"
+      },
+      "pablo": {
+        "email": "pablo@duobalance.test",
+        "name": "Pablo",
+        "password": "Demo1234!"
+      }
+    }
+  },
+  "inputs": {
+    "section": "Balance",
+    "demoUser": "pablo",
+    "expenseType": "individual",
+    "demoUserChoices": {
+      "rocio": {
+        "demoUser": "rocio"
+      }
+    }
+  },
+  "expected": {
+    "toContainText": "35,00",
+    "toContainText1": "Individual",
+    "toHaveCount": 1,
+    "toContainText2": "705,80",
+    "toContainText3": "227,10",
+    "toContainText4": "354,20",
+    "toContainText5": "80,00",
+    "toHaveCount6": 0
+  }
+}

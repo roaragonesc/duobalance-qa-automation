@@ -1,0 +1,49 @@
+{
+  "setup": {
+    "journeyUsers": {
+      "a": {
+        "name": "Ana",
+        "email": "ana.e2e@example.test",
+        "password": "Pruebas1234!"
+      },
+      "b": {
+        "name": "Luis",
+        "email": "luis.e2e@example.test",
+        "password": "Pruebas1234!"
+      }
+    },
+    "space": {
+      "name": "Hogar E2E",
+      "splitMethod": "equal"
+    },
+    "e2eExpenses": {
+      "hairdresser": {
+        "description": "Peluquería E2E",
+        "amount": "35,00",
+        "individual": true,
+        "category": "food"
+      }
+    }
+  },
+  "inputs": {
+    "description": "Control compartido",
+    "amount": "2,00",
+    "expenseType": "individual",
+    "expenseTypeChoices": {
+      "shared": {
+        "expenseType": "shared"
+      }
+    },
+    "filterByCategory": "food",
+    "category": "food",
+    "individual": false
+  },
+  "expected": {
+    "row": "Peluquería E2E",
+    "toHaveCount": 1,
+    "toContainText": "35,00",
+    "row1": "Control compartido",
+    "toHaveCount2": 0,
+    "toContainText3": "0,00"
+  }
+}

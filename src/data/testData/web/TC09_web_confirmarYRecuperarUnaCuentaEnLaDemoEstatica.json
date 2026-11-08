@@ -1,0 +1,12 @@
+{
+  "setup": {},
+  "inputs": {
+    "anonymousUser": null,
+    "value": "pages@example.test",
+    "name": "Demo Pages",
+    "password": "Pruebas1234!"
+  },
+  "expected": {
+    "toContainText": "Si existe una cuenta con ese correo"
+  }
+}

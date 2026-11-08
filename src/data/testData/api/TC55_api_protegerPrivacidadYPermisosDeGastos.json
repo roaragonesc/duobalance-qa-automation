@@ -1,0 +1,60 @@
+{
+  "setup": {
+    "actors": {
+      "a": {
+        "name": "Ana",
+        "email": "finance-a@duobalance.test",
+        "password": "Pruebas1234!"
+      },
+      "b": {
+        "name": "Luis",
+        "email": "finance-b@duobalance.test",
+        "password": "Pruebas1234!"
+      },
+      "outsider": {
+        "name": "Tercero",
+        "email": "finance-outsider@duobalance.test",
+        "password": "Pruebas1234!"
+      }
+    },
+    "household": {
+      "name": "Hogar API",
+      "splitMethod": "equal",
+      "category": {
+        "name": "Alimentación API",
+        "icon": "food",
+        "color": "#00704A"
+      }
+    },
+    "httpStatuses": {
+      "registered": 202,
+      "confirmed": 204,
+      "authenticated": 200,
+      "created": 201,
+      "accepted": 200
+    }
+  },
+  "inputs": {
+    "description": "Común",
+    "amountCents": 8000,
+    "kind": "shared",
+    "description2": "Privado",
+    "kindChoices": {
+      "individual": {
+        "kind": "individual"
+      }
+    },
+    "amountCents3": 3500,
+    "amountCentsRequest": 10000,
+    "amountCents8": 1.5,
+    "date": "2026-02-31"
+  },
+  "expected": {
+    "httpStatus": 201,
+    "httpStatus4": 404,
+    "httpStatus6": 200,
+    "httpStatus7": 409,
+    "httpStatus9": 400,
+    "httpStatus10": 204
+  }
+}

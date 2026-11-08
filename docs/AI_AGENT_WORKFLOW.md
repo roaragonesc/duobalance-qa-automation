@@ -1,13 +1,13 @@
 # Guia de workflow para agentes de IA
 
-Como deben navegar, entender y ampliar este framework los agentes (Copilot, planificador, generador, sanador). El agente base es `.github/agents/qa-web-playwright.agent.md`; este documento define el flujo.
+Como deben navegar, entender y ampliar este framework los agentes (Copilot, planificador, generador, sanador). El agente base es **Playwright SDET** (`.github/agents/playwright-sdet.agent.md`); este documento define el flujo.
 
 ---
 
 ## 1. Entender el framework antes de actuar
 
 1. Lee `docs/COMPONENT_INVENTORY.md`: Pages, componentes, fixtures, datos, utilidades y suite existentes.
-2. Lee `README.md` (entorno, comandos, decisiones, alcance) y `.github/agents/qa-web-playwright.agent.md` (reglas obligatorias).
+2. Lee `README.md` (entorno, comandos, decisiones, alcance) y `.github/agents/playwright-sdet.agent.md` (reglas obligatorias).
 3. Lee `src/fixtures/index.ts` para saber que Pages y escenarios existen como fixture.
 4. Lee `src/config/environment.ts` para el entorno vigente (`BASE_URL`).
 5. Si la tarea toca una pantalla real, comprueba su interfaz real en la demo desplegada. Nunca inventes labels ni mensajes.
@@ -33,7 +33,8 @@ Flujo de dependencias permitido: `tests (specs) -> src/fixtures -> src/pages -> 
 1. Identifica las Pages implicadas en `docs/COMPONENT_INVENTORY.md`.
 2. Identifica la fixture que ya prepara el estado (`demoMember`, `signedInAna`, `spaceOwner`...). Una capacidad que no existe se lista como faltante y se crea primero (Page o fixture), nunca se improvisa en el spec.
 3. Si el escenario necesita dos cuentas con datos compartidos, no se puede probar en modo mock: se deja con `// Requiere API real` + `test.skip`.
-4. Elige los datos de `src/data/` (`journeyUsers`, `demoUsers`, `expenses`).
+4. Crea/lee el JSON propio `src/data/testData/<suite>/<titulo>.json`: `setup`, `inputs` y `expected`.
+   Las fixtures preparan desde esa misma fuente mediante la option tipada `caseData`, nunca desde un catalogo distinto.
 5. Decide el nombre y el numero: siguiente `TC<n>` libre; el archivo se llama igual que el titulo.
 6. Indica por escenario: precondicion (fixture), accion y resultado esperado.
 
@@ -45,22 +46,44 @@ Flujo de dependencias permitido: `tests (specs) -> src/fixtures -> src/pages -> 
 2. Un test por archivo. Titulo `TC<n>_web_<nombre>`; archivo `<titulo>.spec.ts`; numeracion sin huecos. Todo test se divide en pasos numerados `test.step('1. Sujeto + accion', ...)`: un paso = una accion con sus `expect` dentro; la numeracion es consecutiva desde 1. Los specs web no llevan logica (`for`, `while`, `if`, `switch`, `try`, ternarios, `Promise.all`, `.forEach`): con dos personas, cada una abre primero su perfil y comprueba que es ella (`profilePage.nameHeading` + `emailText`), actua Ana con todo lo suyo y despues Luis, repitiendo el codigo.
 3. Pide las Pages y la preparacion por fixture. Si varios tests repiten una preparacion, crea una fixture en `src/fixtures/index.ts`.
 4. Usa solo metodos y localizadores publicos de las Pages; las expectativas van en el spec.
-5. Usa `src/data/` para entradas; nunca credenciales reales ni URLs fijas.
+5. Importa el JSON homonimo y validalo con `defineCaseData`. Entradas y expected de negocio se leen del JSON,
+   incluidos nombres, emails ficticios, importes, categorias, tipos, mensajes, conteos y status API.
+   No uses JSON decorativos ni casts `as any`/`as unknown` para unions: el guard conserva la forma inferida
+   y valida `demoUser`, `expenseType`, `section`, `splitMethod` y `kind`.
 6. No definas funciones auxiliares en el spec: la logica de UI va en la Page o el componente.
 
 Plantilla:
 
 ```ts
 import { expect, test } from '../../src/fixtures'
+import testData from '../../src/data/testData/web/TC13_web_recorridoDeGastoIndividualYPrivacidadEnLaDemo.json'
+import { defineCaseData } from '../../src/utils/caseData'
 
-test('TC13_web_recorridoDeGastoIndividualYPrivacidadEnLaDemo', async ({ demoMember: _member, expensesPage }) => {
-  await test.step('1. El usuario añade un gasto individual', async () => {
+const data = defineCaseData(testData)
+test.use({ caseData: data.setup })
+
+test('TC13_web_recorridoDeGastoIndividualYPrivacidadEnLaDemo', async ({ demoMember: _member, profilePage, expensesPage }) => {
+  await test.step('1. Rocío abre su perfil y comprueba que es Rocío', async () => {
+    await profilePage.visit()
+    await expect(profilePage.nameHeading(data.setup.demoUsers.rocio.name)).toBeVisible()
+    await expect(profilePage.emailText(data.setup.demoUsers.rocio.email)).toBeVisible()
+  })
+  await test.step('2. Rocío añade un gasto individual', async () => {
     await expensesPage.visit()
-    await expensesPage.addExpense({ description: 'Peluquería E2E', amount: '35,00', individual: true })
-    await expect(expensesPage.row('Peluquería E2E')).toContainText('Individual')
+    await expensesPage.addExpense(data.setup.demoExpenses.private)
+    await expect(expensesPage.row(data.setup.demoExpenses.private.description)).toContainText(data.expected.toContainText1)
   })
 })
 ```
+
+La plantilla muestra la carga y los primeros pasos, no reemplaza el recorrido completo existente.
+Titulos/pasos/metadata de skip y claves de protocolos/selectores pueden ser literales; tokens, IDs, enlaces,
+fechas y URLs de entorno siguen dinamicos. Rutas hash, endpoints, teclas, encoding, indices de fechas y
+matchers estructurales son contrato tecnico, no expected de negocio. Los emails API derivan UUID del JSON
+y se comparan con el usuario runtime. El seed demo se reinicia por UI, sin alterar sus resultados.
+Al renombrar/renumerar conserva el par spec + JSON, actualiza import e inventario.
+`lint:arch` usa AST para exigir import y consumo real, setup compartido, ausencia de hardcode de negocio,
+numeracion y datos inventariados; tambien detecta JSON huerfanos.
 
 ---
 
@@ -91,7 +114,7 @@ test('TC13_web_recorridoDeGastoIndividualYPrivacidadEnLaDemo', async ({ demoMemb
 | --- | --- |
 | Instrucciones automaticas de Copilot / otros agentes | `.github/copilot-instructions.md`, `AGENTS.md` |
 | Ver todos los componentes | `docs/COMPONENT_INVENTORY.md` |
-| Reglas del agente | `.github/agents/qa-web-playwright.agent.md` |
+| Reglas del agente | `.github/agents/playwright-sdet.agent.md` |
 | Comandos, decisiones y alcance | `README.md` |
 | Fixtures | `src/fixtures/index.ts`, `src/fixtures/pagesDemo.ts` |
 | Entorno | `src/config/environment.ts` |

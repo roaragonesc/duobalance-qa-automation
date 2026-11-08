@@ -1,0 +1,23 @@
+{
+  "setup": {
+    "account": {
+      "email": "api@duobalance.test",
+      "name": "Cuenta API",
+      "password": "Pruebas1234!"
+    }
+  },
+  "inputs": {
+    "Origin": "http://localhost:5173",
+    "mailToken": "Confirma tu cuenta de DuoBalance",
+    "mailToken3": "Recupera tu contraseña de DuoBalance",
+    "password": "NuevaClave123!",
+    "password5": "OtraClave123!"
+  },
+  "expected": {
+    "httpStatus": 202,
+    "httpStatus1": 204,
+    "httpStatus2": 200,
+    "httpStatus4": 401,
+    "httpStatus6": 400
+  }
+}

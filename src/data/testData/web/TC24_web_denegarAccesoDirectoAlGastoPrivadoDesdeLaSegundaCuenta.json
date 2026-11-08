@@ -1,0 +1,35 @@
+{
+  "setup": {
+    "journeyUsers": {
+      "a": {
+        "name": "Ana",
+        "email": "ana.e2e@example.test",
+        "password": "Pruebas1234!"
+      },
+      "b": {
+        "name": "Luis",
+        "email": "luis.e2e@example.test",
+        "password": "Pruebas1234!"
+      }
+    },
+    "space": {
+      "name": "Hogar E2E",
+      "splitMethod": "equal"
+    },
+    "e2eExpenses": {
+      "hairdresser": {
+        "description": "Peluquería E2E",
+        "amount": "35,00",
+        "individual": true,
+        "category": "food"
+      }
+    }
+  },
+  "inputs": {
+    "editUrl": "Peluquería E2E"
+  },
+  "expected": {
+    "permissionDeniedMessage": "No se ha encontrado el gasto o no tienes permiso para modificarlo.",
+    "toHaveCount": 0
+  }
+}

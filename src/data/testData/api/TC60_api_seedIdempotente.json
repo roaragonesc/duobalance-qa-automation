@@ -1,0 +1,40 @@
+{
+  "setup": {},
+  "inputs": {
+    "value": "Base seed de test no valida.",
+    "seed": "SeedPruebas123!",
+    "email": "rocio@duobalance.test",
+    "value3": "spaces",
+    "value4": "expenses",
+    "value5": "incomes",
+    "value6": "categories",
+    "value7": "settlements",
+    "find": "nuevo@duobalance.test",
+    "find14": "solo@duobalance.test",
+    "find15": "rocio@duobalance.test",
+    "find16": "pablo@duobalance.test",
+    "find17": "ines@duobalance.test",
+    "find18": "mateo@duobalance.test"
+  },
+  "expected": {
+    "spaces": 2,
+    "expenses": 14,
+    "incomes": 6,
+    "categories": 7,
+    "settlements": 1,
+    "arrayContaining": "users",
+    "arrayContaining8": "spaces",
+    "arrayContaining9": "expenses",
+    "arrayContaining10": "incomes",
+    "arrayContaining11": "categories",
+    "arrayContaining12": "invitations",
+    "arrayContaining13": "settlements",
+    "sort": "Curro",
+    "sort19": "Isabel",
+    "sort20": "Juan",
+    "sort21": "Maria",
+    "sort22": "Pablo",
+    "sort23": "Rocío",
+    "pattern": "^\\$argon2id\\$"
+  }
+}

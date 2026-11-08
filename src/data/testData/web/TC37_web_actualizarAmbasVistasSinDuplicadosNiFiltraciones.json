@@ -1,0 +1,51 @@
+{
+  "setup": {
+    "journeyUsers": {
+      "a": {
+        "name": "Ana",
+        "email": "ana.e2e@example.test",
+        "password": "Pruebas1234!"
+      },
+      "b": {
+        "name": "Luis",
+        "email": "luis.e2e@example.test",
+        "password": "Pruebas1234!"
+      }
+    },
+    "space": {
+      "name": "Hogar E2E",
+      "splitMethod": "equal"
+    },
+    "e2eExpenses": {
+      "supermarket": {
+        "description": "Supermercado E2E",
+        "amount": "80,00",
+        "category": "food",
+        "individual": false
+      },
+      "hairdresser": {
+        "description": "Peluquería E2E",
+        "amount": "35,00",
+        "individual": true,
+        "category": "food"
+      },
+      "fuel": {
+        "description": "Gasolina E2E",
+        "amount": "40,00",
+        "category": "food",
+        "individual": false
+      }
+    }
+  },
+  "inputs": {},
+  "expected": {
+    "row": "Supermercado E2E",
+    "toHaveCount": 1,
+    "row1": "Gasolina E2E",
+    "toContainText": "120,00",
+    "row2": "Peluquería E2E",
+    "toContainText3": "35,00",
+    "toHaveCount4": 0,
+    "toContainText5": "0,00"
+  }
+}

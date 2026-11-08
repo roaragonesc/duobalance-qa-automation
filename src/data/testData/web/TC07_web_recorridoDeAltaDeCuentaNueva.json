@@ -1,0 +1,17 @@
+{
+  "setup": {
+    "journeyUsers": {
+      "a": {
+        "name": "Ana",
+        "email": "ana.e2e@example.test",
+        "password": "Pruebas1234!"
+      }
+    }
+  },
+  "inputs": {
+    "anonymousUser": null
+  },
+  "expected": {
+    "toContainText": "Te hemos enviado un correo"
+  }
+}

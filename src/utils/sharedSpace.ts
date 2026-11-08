@@ -4,6 +4,7 @@ import { ExpensesPage } from '../pages/ExpensesPage'
 import { JoinSpacePage } from '../pages/JoinSpacePage'
 import { OnboardingPage } from '../pages/OnboardingPage'
 import { RegisterPage } from '../pages/RegisterPage'
+import type { UserData, WebSetup } from './caseData'
 
 export const journeySpace = 'Hogar E2E'
 
@@ -14,13 +15,19 @@ export async function registerUser(page: Page, user: typeof journeyUsers.a) {
   await registration.confirm(user.email)
 }
 
-export async function prepareSharedSpace(a: Page, b: Page) {
-  await registerUser(a, journeyUsers.a)
+export async function prepareSharedSpace(
+  a: Page,
+  b: Page,
+  first: UserData,
+  second: UserData,
+  space: NonNullable<WebSetup['space']>,
+) {
+  await registerUser(a, first)
   const onboarding = new OnboardingPage(a)
-  await onboarding.createSpace(journeySpace, 'equal')
-  await onboarding.invite(journeyUsers.b.email)
+  await onboarding.createSpace(space.name, space.splitMethod)
+  await onboarding.invite(second.email)
   const invitation = await onboarding.invitationLink.inputValue()
-  await registerUser(b, journeyUsers.b)
+  await registerUser(b, second)
   const join = new JoinSpacePage(b)
   await join.open(invitation)
   await join.accept()

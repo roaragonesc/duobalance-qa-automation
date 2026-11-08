@@ -1,0 +1,8 @@
+{
+  "setup": {},
+  "inputs": {},
+  "expected": {
+    "httpStatus": 200,
+    "toContainText": "No se sincroniza entre dispositivos."
+  }
+}

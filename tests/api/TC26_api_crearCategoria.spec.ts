@@ -1,4 +1,9 @@
 import { test, expect, send } from '../../src/fixtures/endpointApi'
+import testData from '../../src/data/testData/api/TC26_api_crearCategoria.json'
+import { defineCaseData } from '../../src/utils/caseData'
+
+const data = defineCaseData(testData)
+test.use({ caseData: data.setup })
 
 // Requiere API real: necesita un backend REST de testing aislado y no se puede probar en modo mock (demo de GitHub Pages).
 test.skip(true, 'Requiere API real: no se puede probar en modo mock (demo de GitHub Pages).')
@@ -6,11 +11,15 @@ test.skip(true, 'Requiere API real: no se puede probar en modo mock (demo de Git
 test('TC26_api_crearCategoria', async ({ actors }) => {
   await test.step('1. El usuario A crea una categoría personal nueva', async () => {
     const response = await send(actors.a, 'post', 'categories', {
-      name: 'Personal nueva',
-      icon: 'food',
-      color: '#00704A',
+      name: data.inputs.name,
+      icon: data.inputs.icon,
+      color: data.inputs.color,
     })
-    expect(response.status()).toBe(201)
-    expect((await response.json()).category).toMatchObject({ name: 'Personal nueva', icon: 'food', color: '#00704A' })
+    expect(response.status()).toBe(data.expected.httpStatus)
+    expect((await response.json()).category).toMatchObject({
+      name: data.expected.name,
+      icon: data.expected.icon,
+      color: data.expected.color,
+    })
   })
 })

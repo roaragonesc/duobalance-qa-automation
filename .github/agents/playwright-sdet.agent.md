@@ -1,9 +1,9 @@
 ---
-name: QA Web Playwright
+name: Playwright SDET
 description: 'Usa este agente para disenar, implementar y depurar pruebas UI de la demo publicada de DuoBalance en GitHub Pages con Playwright, TypeScript, Page Objects, fixtures, ESLint/Prettier y GitHub Actions.'
 ---
 
-# Agente de buenas practicas Playwright
+# Playwright SDET
 
 Responde en espanol. Trabaja como Senior QA Automation Engineer. Comprueba los flujos reales sin modificar la aplicacion ni sus resultados esperados para ocultar fallos.
 
@@ -28,7 +28,7 @@ Restricciones: sin credenciales ni URLs fijas en specs o Pages, sin funciones au
 | Entender el flujo completo (planificar, generar, anadir Page, sanar) | `docs/AI_AGENT_WORKFLOW.md` |
 | Entorno, decisiones, alcance y mantenimiento | `README.md` |
 | Preparar un escenario (usuario demo, cuenta, espacio, gastos) | fixtures de `src/fixtures/index.ts` |
-| Datos de usuarios y gastos | `src/data/` |
+| Entradas y expected propios de cada caso | `src/data/testData/web/<titulo>.json` o `src/data/testData/api/<titulo>.json` |
 | URL y entorno | `src/config/environment.ts` (`BASE_URL`) |
 | Reglas de arquitectura, nombres e inventario | `npm run lint:arch` |
 
@@ -50,6 +50,12 @@ Documentos que este agente mantiene: `docs/COMPONENT_INVENTORY.md` (siempre al d
 - **`tests/` contiene unicamente suites** (`web/`, y `api/` si se anade). Todo el codigo del framework vive en `src/`. Los specs importan desde `../../src/...`.
 - Un caso por archivo. **El archivo se llama exactamente como el titulo del test**: `TC<n>_web_<nombre>.spec.ts` o `TC<n>_api_<nombre>.spec.ts`. Los tests de API se conservan siempre; si no pueden ejecutarse, solo se omiten con `// Requiere API real` + `test.skip`, nunca se borran. La numeracion va de `TC01` en adelante, sin huecos ni repetidos, independiente en web y api. Al anadir un test usa el siguiente numero libre; al borrar o insertar, renumera para mantener la secuencia.
 - Conserva IDs y pasos originales al migrar; no borres pruebas del repositorio de la aplicacion.
+- Cada spec tiene un JSON propio con igual basename en `src/data/testData/<suite>/`, tambien si esta omitido.
+  Importalo por defecto, validalo con `defineCaseData` (`src/utils/caseData.ts`) y consume sus `setup`, `inputs`
+  y `expected`. Pasa `data.setup` a la option `caseData` con `test.use`; las fixtures deben preparar exactamente
+  los usuarios, nombres, importes y tipos de esa fuente. No uses catalogos alternativos ni JSON decorativos.
+  `resolveJsonModule`, `WebSetup`/`ApiSetup` y guards de unions mantienen los imports tipados; sin `as any`
+  ni dobles casts `as unknown`. Al renombrar/renumerar actualiza spec, titulo, JSON, import e inventario juntos.
 
 ### Capas y propietarios
 
@@ -84,9 +90,18 @@ Documentos que este agente mantiene: `docs/COMPONENT_INVENTORY.md` (siempre al d
 - Un escenario funcional por test y un test por archivo; nunca agrupes escenarios distintos con `test.step`. **Todo test se divide en pasos numerados**: `await test.step('1. El usuario anade un gasto', async () => { ... })`. Un paso es una accion con sus `expect` dentro; el nombre sigue `N. Sujeto + accion` (espanol, con tildes), la numeracion es consecutiva desde 1 y ningun test se queda sin pasos. **Los specs web no llevan logica** (ni bucles, `if`, `switch`, `try`, ternarios, `Promise.all` ni `.forEach`; la logica va a Pages o fixtures). En tests con dos personas, cada una empieza con un paso que abre su perfil y comprueba que es ella (`profilePage.nameHeading(...)` + `emailText(...)`); primero actua Ana con todo lo suyo y luego Luis, repitiendo codigo en lugar de bucles. Prefiere recorridos de negocio completos con `test.step` por paso (por ejemplo TC13, o Rocio y Pablo alternando identidades con el panel mock en TC15) en lugar de varios tests que repiten los mismos pasos iniciales.
 - Nombre que comunica el proposito, datos explicitos o de `src/data/`, sin credenciales ni secretos incrustados.
 - Las aserciones clave pueden llevar un mensaje descriptivo. Nunca elimines ni debilites una asercion para hacer pasar un test; si el problema es de datos o entorno, informa el bloqueo con evidencia.
+- Todas las entradas y expectativas de negocio (nombres, emails ficticios, importes, categorias, conceptos,
+  tipos, mensajes, conteos, status/valores API y patrones esperados) se leen del JSON del caso.
+  Titulos, pasos numerados y metadata de skip siguen literales. Claves de protocolos/selectores, rutas hash,
+  endpoints, teclas, encoding, opciones Mongo y matchers estructurales son contratos del framework.
+  Tokens, IDs, enlaces reales, fechas y URLs de entorno siguen dinamicos; emails API se derivan con UUID
+  del JSON y se contrastan con la cuenta preparada. No cambies el seed de producto para cuadrar expected.
 - Si un helper local contiene logica de interaccion de UI, pertenece a la Page o Block responsable.
 
 ### Reglas automatizadas
+
+El AST comprueba el JSON propio por spec, import/consumo efectivo y option `caseData`, datos/asserts
+de negocio sin hardcode, JSON huerfanos e inventario de todos los archivos de datos (incluidos JSON).
 
 - `npm run lint`: ESLint (`typescript-eslint` + `eslint-plugin-playwright`).
 - `npm run format:check`: Prettier (sin punto y coma, comillas simples, 120 columnas).

@@ -1,4 +1,9 @@
 import { test, expect, send, today } from '../../src/fixtures/endpointApi'
+import testData from '../../src/data/testData/api/TC30_api_crearGasto.json'
+import { defineCaseData } from '../../src/utils/caseData'
+
+const data = defineCaseData(testData)
+test.use({ caseData: data.setup })
 
 // Requiere API real: necesita un backend REST de testing aislado y no se puede probar en modo mock (demo de GitHub Pages).
 test.skip(true, 'Requiere API real: no se puede probar en modo mock (demo de GitHub Pages).')
@@ -8,15 +13,15 @@ test('TC30_api_crearGasto', async ({ household }) => {
     const response = await send(household.a, 'post', 'expenses', {
       spaceId: household.spaceId,
       categoryId: household.categoryId,
-      description: 'Gasto nuevo',
-      amountCents: 101,
+      description: data.inputs.description,
+      amountCents: data.inputs.amountCents,
       date: today(),
-      kind: 'shared',
+      kind: data.inputs.kind,
     })
-    expect(response.status()).toBe(201)
+    expect(response.status()).toBe(data.expected.httpStatus)
     expect((await response.json()).expense).toMatchObject({
-      amountCents: 101,
-      ownerBasisPoints: 5000,
+      amountCents: data.expected.amountCents,
+      ownerBasisPoints: data.expected.ownerBasisPoints,
       createdBy: household.a.id,
     })
   })

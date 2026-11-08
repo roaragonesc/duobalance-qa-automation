@@ -1,0 +1,12 @@
+{
+  "setup": {},
+  "inputs": {
+    "value": 45
+  },
+  "expected": {
+    "httpStatus": 200,
+    "toBe": "3.1.0",
+    "toHaveLength": 45,
+    "toBe1": 45
+  }
+}

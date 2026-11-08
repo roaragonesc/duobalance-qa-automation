@@ -1,0 +1,29 @@
+{
+  "setup": {
+    "journeyUsers": {
+      "a": {
+        "name": "Ana",
+        "email": "ana.e2e@example.test",
+        "password": "Pruebas1234!"
+      },
+      "b": {
+        "name": "Luis",
+        "email": "luis.e2e@example.test",
+        "password": "Pruebas1234!"
+      }
+    },
+    "space": {
+      "name": "Hogar E2E",
+      "splitMethod": "equal"
+    }
+  },
+  "inputs": {
+    "invite": "tercero.e2e@example.test"
+  },
+  "expected": {
+    "toHaveText": "Este espacio ya tiene dos miembros.",
+    "toContainText": "2 de 2",
+    "toHaveCount": 2,
+    "toContainText1": "tercero"
+  }
+}

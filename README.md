@@ -57,11 +57,15 @@ src/
   pages/        una Page Object por pantalla de la aplicacion
   components/   Blocks reutilizables (navegacion lateral, panel mock)
   fixtures/     Pages por fixture + preparacion de escenarios
-  data/         datos ficticios (usuarios, gastos)
+  data/         catalogos ficticios y JSON propios de cada caso
+    testData/
+      web/      TC<n>_web_<nombre>.json (41 casos)
+      api/      TC<n>_api_<nombre>.json (60 casos)
   config/       entorno tipado y validado
   utils/        utilidades pequenas y checkArchitecture (lint:arch)
 tests/
   web/          TC<n>_web_<nombre>.spec.ts
+  api/          TC<n>_api_<nombre>.spec.ts
 docs/           guia de agentes e inventario de componentes
 ```
 
@@ -94,6 +98,9 @@ cuenta el escenario y sus expectativas; nunca contiene locators.
   las Pages no importan fixtures; sin `waitForTimeout`, `networkidle`, `force: true`, `test.only` ni `test.fixme`;
   `test.skip` solo como bloqueo de capacidad con comentario `// Requiere API real: ...`; todo archivo de `src/`
   figura en el inventario.
+- Cada spec importa y consume su JSON homonimo en `src/data/testData/<suite>/`, sin JSON huerfanos
+  ni datos/asserts de negocio literales. El analisis AST distingue imports, claves, strings, opciones y ternarios;
+  todos los archivos de datos, no solo TypeScript, deben estar inventariados.
 
 ### Buenas practicas
 
@@ -123,8 +130,49 @@ cuenta el escenario y sus expectativas; nunca contiene locators.
 
 - Cada test recibe lo que necesita por fixture y arranca aislado: funciona en cualquier orden y en paralelo.
 - La preparacion repetida se extrae a una fixture encadenada y explicita; no oculta pasos criticos del escenario.
-- Datos ficticios centralizados en `src/data/`. Nunca credenciales, tokens ni URLs fijas en specs o Pages; los secretos
+- Datos y resultados esperados de cada caso en su JSON propio (ver contrato abajo). Nunca credenciales, tokens ni URLs fijas en specs o Pages; los secretos
   van en el mecanismo seguro de CI. La configuracion por entorno vive en un solo sitio y se valida al arrancar.
+
+### Datos JSON por test
+
+Hay **101 pares spec + JSON**: 41 web y 60 API, incluidos los casos bloqueados. El basename del JSON coincide
+exactamente con el titulo y el spec, por ejemplo:
+
+```text
+tests/web/TC13_web_recorridoDeGastoIndividualYPrivacidadEnLaDemo.spec.ts
+src/data/testData/web/TC13_web_recorridoDeGastoIndividualYPrivacidadEnLaDemo.json
+```
+
+Cada JSON contiene tres objetos:
+
+- `setup`: usuarios, gastos y espacios usados por la preparacion y/o por el recorrido. La option tipada
+  `caseData` recibe `data.setup` mediante `test.use`; las fixtures leen esa misma fuente, sin sembrar nombres
+  o importes de otro catalogo. En API incluye tambien los status HTTP esperados durante el setup.
+- `inputs`: entradas del escenario (contrasenas ficticias, importes nuevos, conceptos, categorias, tipos,
+  destinatarios, parametros y opciones del dispositivo cuando aplican).
+- `expected`: mensajes, importes/saldos, cantidades, status HTTP, valores de respuesta y patrones esperados.
+  Se conservan todas las aserciones; un cambio de datos no justifica debilitar un resultado esperado.
+
+Los specs importan el JSON por defecto y llaman a `defineCaseData` de `src/utils/caseData.ts`:
+`resolveJsonModule` conserva su forma inferida y el guard valida/narrowea unions (`demoUser`, `expenseType`,
+`section`, `splitMethod`, `kind`). No se usan `as any` ni dobles casts `as unknown`. `WebSetup` y `ApiSetup`
+tipan la option de fixtures; una precondicion faltante falla con su ruta JSON mediante `requiredData`.
+Los catalogos `.ts` existentes se conservan como referencia/compatibilidad del framework; no son la fuente
+de datos de los specs migrados.
+
+**Excepciones deliberadas, no datos de negocio hardcodeados:**
+
+- Titulos, pasos numerados y motivos de `skip` siguen literales.
+- Rutas relativas/hash y endpoints, claves de respuesta/cabeceras/atributos, teclas, opciones Mongo,
+  encoding y paths de modulos pertenecen al contrato tecnico del framework.
+- Tokens, CSRF, IDs, enlaces recibidos, fechas/mes actual y URLs de entorno se obtienen en runtime.
+  Las cuentas API derivan un email unico con UUID del email ficticio del JSON; las expectativas comparan
+  con el email realmente preparado. La conexion Mongo usa `mongoURL` de configuracion.
+- Matchers estructurales (`expect.any(String)`, visibilidad, foco, ausencia de propiedades secretas) no
+  inventan un valor de negocio. Los patrones de tokens/hashes que ya se comprobaban viven en `expected`;
+  patrones de router, inspeccion OpenAPI y guardias de entorno siguen siendo contratos tecnicos.
+- El seed de la demo se restablece por la UI: su identidad y balance se comprueban con los expected JSON;
+  no se modifica la aplicacion para hacerlos pasar ni se simula sincronizacion de servidor.
 
 **Escribir tests**
 
@@ -167,7 +215,7 @@ cuenta el escenario y sus expectativas; nunca contiene locators.
 
 **Trabajo con agentes de IA**
 
-- El agente `QA Web Playwright` sigue el flujo de `docs/AI_AGENT_WORKFLOW.md`: entender, planificar, implementar,
+- El agente `Playwright SDET` (`.github/agents/playwright-sdet.agent.md`) sigue el flujo de `docs/AI_AGENT_WORKFLOW.md`: entender, planificar, implementar,
   verificar, sanar y reportar.
 - Antes de crear nada consulta `docs/COMPONENT_INVENTORY.md`; si cambia algo en `src/`, lo actualiza (lo exige `lint:arch`).
 - No ejecuta suites de Playwright salvo peticion expresa; verifica con `typecheck`, `lint`, `format:check` y `lint:arch`.
@@ -176,8 +224,8 @@ cuenta el escenario y sus expectativas; nunca contiene locators.
 
 | Quiero...                          | Pasos                                                                                                                                  |
 | ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| Anadir un test                     | Crea la Page/fixture que falte, anade el spec con el siguiente `TC<n>` libre (archivo = titulo) y ejecuta `typecheck`, `lint` y `lint:arch` |
-| Insertar un test en medio          | Renumera los siguientes (titulo + archivo); `lint:arch` avisa de huecos o repetidos                                                    |
+| Anadir un test                     | Crea la Page/fixture que falte, crea su JSON en `src/data/testData/<suite>/`, importa/consume entradas y expected, pasa `data.setup` a `caseData`, registra el JSON en el inventario y ejecuta los cuatro checks |
+| Insertar o renombrar un test        | Renumera/renombra titulo, spec y JSON como un par; actualiza el import y el inventario. `lint:arch` detecta huecos, repetidos, JSON faltantes/huerfanos o decorativos |
 | Anadir una pantalla                | Crea `src/pages/<Nombre>Page.ts` extendiendo `BasePage`, registrala como fixture en `src/fixtures/index.ts` y anadela al inventario   |
 | Cambia un selector o texto de la UI | Corrigelo solo en la Page o componente propietario, nunca en el spec; comprueba el spec afectado y los que usan esa Page              |
 | Un test falla                      | Clasifica la causa (producto, test, Page, datos, entorno) antes de tocar nada; no se debilita la asercion ni se usa `skip` para aprobar |
@@ -200,6 +248,9 @@ recursos del origen configurado y bloquean fetch/XHR, Supabase y rutas API/mock.
   los tests. Solo se usan cuentas ficticias.
 
 La suite web tiene **41 tests** (`tests/web/TC01...TC41`) y la de API **60** (`tests/api/TC01...TC60`):
+
+Cada uno conserva su JSON propio, datos consumidos, pasos e identidades; migrar los datos no activa skips
+ni cambia la capacidad real de la demo. La validacion de esta estructura es estatica y no ejecuta Playwright.
 
 | Estado                | Tests | Contenido                                                                                                                              |
 | --------------------- | ----- | -------------------------------------------------------------------------------------------------------------------------------------- |

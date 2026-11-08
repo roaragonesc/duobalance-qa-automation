@@ -1,0 +1,41 @@
+{
+  "setup": {
+    "actors": {
+      "a": {
+        "name": "Ana",
+        "email": "finance-a@duobalance.test",
+        "password": "Pruebas1234!"
+      },
+      "b": {
+        "name": "Luis",
+        "email": "finance-b@duobalance.test",
+        "password": "Pruebas1234!"
+      },
+      "outsider": {
+        "name": "Tercero",
+        "email": "finance-outsider@duobalance.test",
+        "password": "Pruebas1234!"
+      }
+    },
+    "household": {
+      "name": "Hogar API",
+      "splitMethod": "equal",
+      "category": {
+        "name": "Alimentación API",
+        "icon": "food",
+        "color": "#00704A"
+      }
+    },
+    "httpStatuses": {
+      "registered": 202,
+      "confirmed": 204,
+      "authenticated": 200,
+      "created": 201,
+      "accepted": 200
+    }
+  },
+  "inputs": {},
+  "expected": {
+    "httpStatus": 200
+  }
+}

@@ -1,8 +1,13 @@
 import { expect, test } from '../../src/fixtures'
-import { journeyUsers } from '../../src/data/journeyUsers'
+
 import { ExpensesPage } from '../../src/pages/ExpensesPage'
 import { LoginPage } from '../../src/pages/LoginPage'
 import { ProfilePage } from '../../src/pages/ProfilePage'
+import testData from '../../src/data/testData/web/TC38_web_cerrarLaSegundaSesionSinAfectarALaPrimera.json'
+import { defineCaseData } from '../../src/utils/caseData'
+
+const data = defineCaseData(testData)
+test.use({ caseData: data.setup })
 
 // Requiere API real: necesita dos sesiones con datos compartidos y no se puede probar en modo mock.
 test.skip(true, 'Requiere API real: no se puede probar en modo mock (demo de GitHub Pages).')
@@ -20,14 +25,14 @@ test('TC38_web_cerrarLaSegundaSesionSinAfectarALaPrimera', async ({
 
   await test.step('1. Ana abre su perfil y comprueba que es Ana', async () => {
     await anaProfile.visit()
-    await expect(anaProfile.nameHeading(journeyUsers.a.name)).toBeVisible()
-    await expect(anaProfile.emailText(journeyUsers.a.email)).toBeVisible()
+    await expect(anaProfile.nameHeading(data.setup.journeyUsers.a.name)).toBeVisible()
+    await expect(anaProfile.emailText(data.setup.journeyUsers.a.email)).toBeVisible()
   })
 
   await test.step('2. Luis abre su perfil y comprueba que es Luis', async () => {
     await luisProfile.visit()
-    await expect(luisProfile.nameHeading(journeyUsers.b.name)).toBeVisible()
-    await expect(luisProfile.emailText(journeyUsers.b.email)).toBeVisible()
+    await expect(luisProfile.nameHeading(data.setup.journeyUsers.b.name)).toBeVisible()
+    await expect(luisProfile.emailText(data.setup.journeyUsers.b.email)).toBeVisible()
   })
 
   await test.step('3. Luis cierra sesión desde su perfil', async () => {
@@ -42,8 +47,8 @@ test('TC38_web_cerrarLaSegundaSesionSinAfectarALaPrimera', async ({
 
   await test.step('5. Ana mantiene su sesión y ve todos sus gastos', async () => {
     await anaExpenses.visit()
-    await expect(anaExpenses.row('Supermercado E2E')).toContainText('80,00')
-    await expect(anaExpenses.row('Gasolina E2E')).toContainText('40,00')
-    await expect(anaExpenses.row('Peluquería E2E')).toContainText('35,00')
+    await expect(anaExpenses.row(data.expected.row)).toContainText(data.expected.toContainText)
+    await expect(anaExpenses.row(data.expected.row1)).toContainText(data.expected.toContainText2)
+    await expect(anaExpenses.row(data.expected.row3)).toContainText(data.expected.toContainText4)
   })
 })

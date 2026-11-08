@@ -1,4 +1,9 @@
 import { test, expect, today } from '../../src/fixtures/endpointApi'
+import testData from '../../src/data/testData/api/TC29_api_listarGastos.json'
+import { defineCaseData } from '../../src/utils/caseData'
+
+const data = defineCaseData(testData)
+test.use({ caseData: data.setup })
 
 // Requiere API real: necesita un backend REST de testing aislado y no se puede probar en modo mock (demo de GitHub Pages).
 test.skip(true, 'Requiere API real: no se puede probar en modo mock (demo de GitHub Pages).')
@@ -8,9 +13,13 @@ test('TC29_api_listarGastos', async ({ household, expense }) => {
     const response = await household.b.api.get('expenses', {
       params: { spaceId: household.spaceId, month: today().slice(0, 7) },
     })
-    expect(response.status()).toBe(200)
+    expect(response.status()).toBe(data.expected.httpStatus)
     expect((await response.json()).expenses).toEqual([
-      expect.objectContaining({ id: expense.id, amountCents: 8000, canEdit: false }),
+      expect.objectContaining({
+        id: expense.id,
+        amountCents: data.expected.amountCents,
+        canEdit: data.expected.canEdit,
+      }),
     ])
   })
 })

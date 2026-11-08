@@ -1,0 +1,20 @@
+{
+  "setup": {},
+  "inputs": {
+    "width": 390,
+    "height": 844,
+    "isMobile": true,
+    "hasTouch": true,
+    "demoUser": "rocio",
+    "section": "Gastos",
+    "description": "Compra demo Pages",
+    "amount": "12,50",
+    "category": "food",
+    "individual": false
+  },
+  "expected": {
+    "row": "Compra demo Pages",
+    "toContainText": "12,50",
+    "toHaveValue": ""
+  }
+}

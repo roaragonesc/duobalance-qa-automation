@@ -1,0 +1,68 @@
+{
+  "setup": {
+    "actors": {
+      "a": {
+        "name": "Ana",
+        "email": "finance-a@duobalance.test",
+        "password": "Pruebas1234!"
+      },
+      "b": {
+        "name": "Luis",
+        "email": "finance-b@duobalance.test",
+        "password": "Pruebas1234!"
+      },
+      "outsider": {
+        "name": "Tercero",
+        "email": "finance-outsider@duobalance.test",
+        "password": "Pruebas1234!"
+      }
+    },
+    "household": {
+      "name": "Hogar API",
+      "splitMethod": "equal",
+      "category": {
+        "name": "Alimentación API",
+        "icon": "food",
+        "color": "#00704A"
+      }
+    },
+    "httpStatuses": {
+      "registered": 202,
+      "confirmed": 204,
+      "authenticated": 200,
+      "created": 201,
+      "accepted": 200
+    }
+  },
+  "inputs": {
+    "kind": "shared",
+    "description": "Supermercado",
+    "description2": "Privado",
+    "kindChoices": {
+      "individual": {
+        "kind": "individual"
+      }
+    },
+    "amountCents": 3500,
+    "name": "Gasolina",
+    "icon": "transport",
+    "color": "#1E5FB3",
+    "description3": "Gasolina",
+    "amountCents4": 4000,
+    "toBe": 201,
+    "toBe9": 404,
+    "password": "Pruebas1234!",
+    "amountCentsRequest": 8000
+  },
+  "expected": {
+    "httpStatus": 201,
+    "httpStatus6": 200,
+    "amountCents7": 2000,
+    "toEqual": "partner",
+    "toEqual8": "me",
+    "httpStatus10": 204,
+    "httpStatus11": 401,
+    "toHaveLength": 2,
+    "httpStatus12": 404
+  }
+}
