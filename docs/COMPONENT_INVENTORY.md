@@ -79,7 +79,7 @@ Una Page por pantalla de la aplicacion. Locators como campos `readonly` del cons
 
 | Suite | Archivos | Numeracion | Notas |
 | --- | --- | --- | --- |
-| `tests/web/` | `TC<n>_web_<nombre>.spec.ts` | TC01-TC66 | 40 se ejecutan; 26 de dos cuentas se omiten con `// Requiere API real` |
+| `tests/web/` | `TC<n>_web_<nombre>.spec.ts` | TC01-TC67 | 41 se ejecutan; 26 de dos cuentas se omiten con `// Requiere API real` |
 | `tests/api/` | `TC<n>_api_<nombre>.spec.ts` | TC01-TC60 | Los 60 se omiten con `// Requiere API real` (necesitan un backend REST aislado) |
 
-Ejemplo de referencia: `tests/web/TC23_web_crearUnGastoIndividualDesdeLaPrimeraCuenta.spec.ts`.
+Ejemplo de referencia: `tests/web/TC23_web_crearUnGastoIndividualDesdeLaPrimeraCuenta.spec.ts`. Recorrido con varios pasos y dos identidades demo en un solo navegador: `tests/web/TC67_web_recorridoDeGastosCompartidosEIndividualesEntreRocioYPablo.spec.ts`.

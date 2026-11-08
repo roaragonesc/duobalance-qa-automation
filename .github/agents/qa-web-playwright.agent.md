@@ -81,7 +81,7 @@ Documentos que este agente mantiene: `docs/COMPONENT_INVENTORY.md` (siempre al d
 
 ### Specs
 
-- Un escenario funcional por test y un test por archivo; nunca agrupes escenarios distintos con `test.step`.
+- Un escenario funcional por test y un test por archivo; nunca agrupes escenarios distintos con `test.step`. Un recorrido de negocio unico (por ejemplo, Rocio y Pablo alternando identidades con el panel mock en TC67) si puede usar `test.step` por paso.
 - Nombre que comunica el proposito, datos explicitos o de `src/data/`, sin credenciales ni secretos incrustados.
 - Las aserciones clave pueden llevar un mensaje descriptivo. Nunca elimines ni debilites una asercion para hacer pasar un test; si el problema es de datos o entorno, informa el bloqueo con evidencia.
 - Si un helper local contiene logica de interaccion de UI, pertenece a la Page o Block responsable.

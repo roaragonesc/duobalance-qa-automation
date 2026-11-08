@@ -7,4 +7,9 @@ export const e2eExpenses = {
 export const demoExpenses = {
   shared: { description: 'Compra compartida Pages', amount: '80,00' },
   private: { description: 'Gasto privado Pages', amount: '35,00', individual: true },
+  partnerShared: { description: 'Gasolina compartida Pages', amount: '40,00' },
+  partnerPrivate: { description: 'Gasto privado de Pablo Pages', amount: '25,00', individual: true },
 } as const
+
+// Nombre visible de la categoria que selecciona ExpensesPage.addExpense.
+export const foodCategoryName = 'Alimentación'
