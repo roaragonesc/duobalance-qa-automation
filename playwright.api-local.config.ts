@@ -1,5 +1,5 @@
 import { defineConfig } from '@playwright/test'
-import { appRoot, configureLocal, localApiURL, mongoURL } from './tests/integration/localEnvironment'
+import { appRoot, configureLocal, localApiURL, mongoURL } from './src/config/localEnvironment'
 
 const { database, runDirectory } = configureLocal('api')
 
@@ -11,7 +11,7 @@ export default defineConfig({
   retries: 0,
   forbidOnly: true,
   timeout: 30_000,
-  globalTeardown: './tests/integration/apiTeardown.ts',
+  globalTeardown: './src/integration/apiTeardown.ts',
   reporter: [
     ['list'],
     ['html', { outputFolder: 'playwright-report/local-api', open: 'never' }],
@@ -24,7 +24,7 @@ export default defineConfig({
     trace: 'retain-on-failure',
   },
   webServer: {
-    command: 'node --import tsx tests/integration/runApiServer.ts',
+    command: 'node --import tsx src/integration/runApiServer.ts',
     url: `${localApiURL}health`,
     reuseExistingServer: false,
     timeout: 180_000,

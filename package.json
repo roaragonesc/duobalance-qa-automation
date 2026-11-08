@@ -7,11 +7,12 @@
     "test": "playwright test",
     "test:ui": "playwright test --project=chromium",
     "test:api": "playwright test --project=api",
-    "test:api:local": "node --import tsx tests/helpers/runLocalApiTests.ts",
+    "test:api:local": "node --import tsx src/integration/runLocalApiTests.ts",
     "test:api:local:direct": "playwright test --config playwright.api-local.config.ts",
     "test:e2e:local": "playwright test --config playwright.api-e2e.config.ts",
     "test:list": "playwright test --list",
     "typecheck": "tsc --noEmit",
+    "lint:arch": "node --import tsx src/utils/checkArchitecture.ts",
     "report": "playwright show-report playwright-report/published",
     "report:api:local": "playwright show-report playwright-report/local-api",
     "report:e2e:local": "playwright show-report playwright-report/local-api-e2e"

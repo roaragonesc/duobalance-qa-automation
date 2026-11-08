@@ -59,7 +59,7 @@ se modifica. Se conservan IDs, escenarios y aserciones; solo se adaptan rutas,
 esperas al hash y preparacion compatible con el despliegue.
 
 El seed importa modelos y MongoDB del backend original: su fuente completa
-esta en [tests/preserved/seedIdempotente.spec.ts.original](tests/preserved/seedIdempotente.spec.ts.original).
+esta en [docs/preserved/seedIdempotente.spec.ts.original](docs/preserved/seedIdempotente.spec.ts.original).
 El spec descubrible conserva su ID: se ejecuta en modo API local y se bloquea
 en modo remoto sin cargar modulos del backend.
 No se migran suites unitarias/component testing/DB que necesitan compilar o
@@ -94,6 +94,59 @@ independientes: TC07 (sin sesion), TC27 (redireccion tras login) y TC28
 (volver atras tras logout). Cada caso prepara su propia sesion y no depende
 del resultado ni del estado de otro test.
 
+## Un archivo por test y un Page Object por pantalla
+
+Cada spec contiene un unico test y **el archivo se llama exactamente como el
+titulo del test**: `TC<n>_web_<nombre>.spec.ts`, `TC<n>_web_e2e_<nombre>.spec.ts`
+(web contra la API real) y `TC<n>_api_<nombre>.spec.ts`. La numeracion va de
+`TC01` sin huecos y es independiente en web (TC01-TC83) y en api (TC01-TC60);
+en el titulo y en el archivo se usa el mismo texto.
+Los antiguos recorridos con varios `test.step` se dividieron en un archivo por
+paso (por ejemplo `TC29_web_crearUnGastoIndividualDesdeLaPrimeraCuenta.spec.ts`).
+Cada test prepara por si mismo el estado que antes dejaba el paso anterior.
+
+El framework vive en `src/` y `tests/` contiene solo las suites `web/` y `api/`:
+
+```text
+src/
+  components/   Blocks reutilizables (AppNavigation, DemoPanel)
+  config/       entorno tipado (environment, localEnvironment)
+  data/         datos ficticios (usuarios, gastos)
+  fixtures/     Pages, escenarios y fixtures API
+  integration/  arranque/teardown de backend y frontend locales
+  pages/        una Page Object por pantalla
+  utils/        utilidades (rutas, red, escenarios, checkArchitecture)
+tests/
+  api/          specs REST
+  web/          specs UI
+docs/preserved/ fuentes originales conservadas
+```
+
+Cada pantalla de la aplicacion tiene su Page Object en `src/pages`
+(locators como campos `readonly` del constructor, operaciones con intencion de
+usuario, sin expectativas de negocio). `BasePage` solo aporta lo comun
+(`visit`, `reload`, `main`, `alert`, `status`, `expectOpen`):
+`LoginPage`, `RegisterPage`, `ForgotPasswordPage`, `ResetPasswordPage`,
+`OnboardingPage`, `JoinSpacePage`, `DashboardPage`, `ExpensesPage`,
+`IncomesPage`, `BalancePage`, `SpacePage` y `ProfilePage`. La navegacion
+lateral (`AppNavigation`) y el panel mock (`DemoPanel`) son componentes en
+`src/components`. Los specs no contienen locators ni `goto`.
+
+Las fixtures de `src/fixtures/index.ts` exponen las Pages y la preparacion de
+escenarios encadenada (`couple`, `sharedExpense`, `privateExpense`,
+`sharedAndPrivateExpenses`, `balancedExpenses`, `spaceOwner`, `signedInAna`,
+`recoveryRequested`, `demoSharedExpense`...); los datos estan en `src/data`.
+
+`npm run lint:arch` comprueba estas reglas (`tests/` solo con `web` y `api`,
+un test por spec, sin locators ni `goto` en specs, sin
+`waitForTimeout`/`networkidle`/`force`/`test.only`, sin cruces entre suites y
+con el inventario `docs/COMPONENT_INVENTORY.md` al dia) y
+se ejecuta en CI junto a `npm run typecheck`. La guia de buenas practicas
+completa esta en `.github/agents/qa-web-playwright.agent.md` y el flujo de
+trabajo de los agentes en [docs/AI_AGENT_WORKFLOW.md](docs/AI_AGENT_WORKFLOW.md).
+Los agentes cargan ademas `AGENTS.md` y `.github/copilot-instructions.md`, que
+apuntan al agente, al workflow y al inventario.
+
 ## API remota opcional
 
 No se ha identificado un backend publico de testing en el despliegue.
@@ -104,12 +157,12 @@ $env:API_BASE_URL = 'https://your-testing-backend.example/api/v1/'
 npm run test:api
 ```
 
-Sin `API_BASE_URL`, los 58 casos API se notifican bloqueados antes de enviar
+Sin `API_BASE_URL`, los 60 tests API se notifican bloqueados antes de enviar
 peticiones. Con un backend de testing configurado, se habilitan unicamente
 TC01 (health) y TC02 (contrato OpenAPI de 45 operaciones), de solo lectura.
 Sus aserciones originales no se relajan.
 
-En modo remoto los otros 56 casos siguen bloqueados: sus fixtures necesitan
+En modo remoto los otros 58 casos siguen bloqueados: sus fixtures necesitan
 correo accesible desde el filesystem del backend, configuracion CORS de testing,
 cuentas confirmadas y MongoDB aislado; TC58 requiere ademas codigo backend/seed.
 **Desplegar una URL por si solo no cubre estos requisitos**. Antes de habilitarlos,
@@ -117,7 +170,7 @@ implementar un adaptador de correo de testing y aprovisionamiento/limpieza
 aislados, adaptar las fixtures y verificar que no apuntan a produccion.
 Los escenarios destructivos no se activan simplemente por definir API_BASE_URL.
 El modo local descrito a continuacion provee la infraestructura aislada y
-ejecuta los 58 casos API originales, incluido seed.
+ejecuta los 60 tests API (los 58 casos originales con TC46 dividido en TC104-TC106), incluido seed.
 
 ## API local y web API local: suites separadas
 
@@ -146,13 +199,13 @@ npx playwright install chromium
 | --- | --- | --- | --- |
 | Web Pages | `npm run test:ui` | `playwright.config.ts`, chromium | `playwright-report/published/`, `test-results/published/junit.xml` |
 | API remota, solo lectura | `npm run test:api` | `playwright.config.ts`, api | `playwright-report/published/`, `test-results/published/junit.xml` |
-| API local, 58 casos REST/seed | `npm run test:api:local` | `playwright.api-local.config.ts` | `playwright-report/local-api/`, `test-results/local-api/junit.xml` |
+| API local, 60 tests REST/seed | `npm run test:api:local` | `playwright.api-local.config.ts` | `playwright-report/local-api/`, `test-results/local-api/junit.xml` |
 | Web con API local | `npm run test:e2e:local` | `playwright.api-e2e.config.ts` | `playwright-report/local-api-e2e/`, `test-results/local-api-e2e/junit.xml` |
 
 `npm run test:api:local` ejecuta cuatro shards secuenciales, cada uno con
 backend y base nuevos, para respetar los limites de autenticacion originales;
 fusiona HTML/JUnit y falla si falla cualquier shard. No necesita Chromium.
-Para un caso concreto: `npm run test:api:local:direct -- tests/api/consultarSalud.spec.ts`.
+Para un caso concreto: `npm run test:api:local:direct -- tests/api/TC01_api_consultarSalud.spec.ts`.
 No ejecutar toda la suite mediante el comando directo: acumularia los limites
 de autenticacion en un solo servidor.
 
@@ -169,7 +222,7 @@ ese origen local; Pages mantiene su guardia sin REST y su hash router.
 Los dos usuarios tienen BrowserContexts independientes y correo ficticio.
 
 El antiguo recorrido TC23 se conserva en
-[tests/preserved/recorridoFinancieroApi.spec.ts.original](tests/preserved/recorridoFinancieroApi.spec.ts.original).
+[docs/preserved/recorridoFinancieroApi.spec.ts.original](docs/preserved/recorridoFinancieroApi.spec.ts.original).
 Sus seis escenarios se separaron en TC23 y TC29-TC33: un test por archivo,
 sin `test.step` y con preparacion propia mediante fixtures UI. Conservan
 las aserciones originales; ningun caso necesita que se ejecute otro antes.
@@ -215,9 +268,9 @@ no se versionan. Cada ejecucion reemplaza el informe local anterior.
 ## Validacion realizada (2026-11-03)
 
 - `npm run typecheck`: correcto.
-- `npx playwright test --list`: 84 casos (26 web + 58 API).
+- `npx playwright test --list`: 138 tests (78 web + 60 API).
 - `npx playwright test --project=chromium`: **14 passed, 12 skipped, 0 failed**.
-- Proyecto API sin backend: **58 skipped, 0 passed**; no representa validacion REST.
+- Proyecto API sin backend: **60 skipped, 0 passed**; no representa validacion REST.
 - Verificado el destino por defecto, el override conservando subdirectorios y
   el rechazo de GitHub Pages como API.
 - Los informes locales de esta validacion se conservaron por separado:
@@ -233,7 +286,7 @@ no se versionan. Cada ejecucion reemplaza el informe local anterior.
   - Web con API local: **6/6 aprobados**, con dos sesiones independientes,
     invitacion, gastos privados/compartidos, balance y persistencia.
   - TypeScript: correcto antes de la ultima sustitucion del comando de arranque
-    Vite por `tests/integration/runFrontend.ts`. Esa ultima modificacion se deja
+    Vite por `src/integration/runFrontend.ts`. Esa ultima modificacion se deja
     deliberadamente sin ejecutar ni volver a validar.
   - Por peticion expresa, no se vuelven a lanzar pruebas en esta iteracion.
     Los resultados anteriores no deben interpretarse como validacion de ese

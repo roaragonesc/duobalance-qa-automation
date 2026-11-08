@@ -45,6 +45,7 @@ jobs:
       - run: npm ci
         working-directory: application/backend
       - run: npm run typecheck
+      - run: npm run lint:arch
         working-directory: automation
       - run: npm run test:api:local
         working-directory: automation

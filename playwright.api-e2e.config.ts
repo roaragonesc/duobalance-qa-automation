@@ -1,16 +1,16 @@
 import { defineConfig, devices } from '@playwright/test'
-import { appRoot, configureLocal, localApiURL, localFrontendURL, mongoURL } from './tests/integration/localEnvironment'
+import { appRoot, configureLocal, localApiURL, localFrontendURL, mongoURL } from './src/config/localEnvironment'
 
 const { database, runDirectory } = configureLocal('api-e2e')
 
 export default defineConfig({
   testDir: './tests/web',
-  testMatch: ['recorridoFinancieroApi.spec.ts', 'api*.spec.ts'],
+  testMatch: '*_web_e2e_*.spec.ts',
   workers: 1,
   retries: 0,
   forbidOnly: true,
   timeout: 90_000,
-  globalTeardown: './tests/integration/apiTeardown.ts',
+  globalTeardown: './src/integration/apiTeardown.ts',
   reporter: [
     ['list'],
     ['html', { outputFolder: 'playwright-report/local-api-e2e', open: 'never' }],
@@ -26,7 +26,7 @@ export default defineConfig({
   },
   webServer: [
     {
-      command: 'node --import tsx tests/integration/runApiServer.ts',
+      command: 'node --import tsx src/integration/runApiServer.ts',
       url: `${localApiURL}health`,
       reuseExistingServer: false,
       timeout: 180_000,
@@ -40,7 +40,7 @@ export default defineConfig({
       },
     },
     {
-      command: 'node --import tsx tests/integration/runFrontend.ts',
+      command: 'node --import tsx src/integration/runFrontend.ts',
       url: localFrontendURL,
       reuseExistingServer: false,
       env: { VITE_DATA_MODE: 'api', VITE_API_PROXY_TARGET: 'http://127.0.0.1:4180' },

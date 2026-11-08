@@ -26,7 +26,7 @@ de cuatro shards evita alcanzar el rate limit de autenticacion. El comando
 directo sirve para depurar un spec individual, por ejemplo:
 
 ```powershell
-npm run test:api:local:direct -- tests/api/consultarSalud.spec.ts
+npm run test:api:local:direct -- tests/api/TC01_api_consultarSalud.spec.ts
 ```
 
 HTML, JUnit y trazas se guardan bajo `playwright-report/local-api/` y

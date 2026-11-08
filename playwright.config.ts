@@ -1,5 +1,5 @@
 import { defineConfig, devices } from '@playwright/test'
-import { frontendURL, apiURL } from './tests/helpers/environment'
+import { frontendURL, apiURL } from './src/config/environment'
 
 export default defineConfig({
   testDir: './tests',
@@ -24,7 +24,7 @@ export default defineConfig({
     {
       name: 'chromium',
       testMatch: '**/web/*.spec.ts',
-      testIgnore: '**/web/api*.spec.ts',
+      testIgnore: '**/web/*_web_e2e_*.spec.ts',
       use: { ...devices['Desktop Chrome'] },
     },
     {
