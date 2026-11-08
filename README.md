@@ -268,6 +268,8 @@ EUR y una deuda de 314,20 EUR), no valores calculados a partir de la respuesta o
 
 Dos workflows independientes:
 
+- Las acciones `actions/checkout@v5`, `actions/setup-node@v5` y `actions/upload-artifact@v6` utilizan
+  Node.js 24 internamente. El framework tambien se ejecuta con `node-version: '24'`.
 - [Calidad y tests](.github/workflows/playwright.yml): push a `main`, pull requests y ejecucion manual. Job `quality`
   (`typecheck`, `lint`, `format:check`, `lint:arch`) y job `ui` (Chromium contra `vars.BASE_URL`, por defecto Pages).
 - [Nightly](.github/workflows/nightly.yml): **todos los dias a las 03:00 Europe/Madrid** (y a mano). Ejecuta
