@@ -2,7 +2,7 @@ import { expect, test } from '../../src/fixtures'
 
 import { ProfilePage } from '../../src/pages/ProfilePage'
 import { SpacePage } from '../../src/pages/SpacePage'
-import testData from '../../src/data/testData/web/TC17_web_recargarAmbasSesionesIndependientes.json'
+import testData from '../../src/data/testData/web/TC17_web_recargarAmbasSesionesIndependientes.json' with { type: 'json' }
 import { defineCaseData } from '../../src/utils/caseData'
 
 const data = defineCaseData(testData)

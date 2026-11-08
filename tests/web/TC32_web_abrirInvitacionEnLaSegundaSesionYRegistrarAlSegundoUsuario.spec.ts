@@ -5,7 +5,7 @@ import { JoinSpacePage } from '../../src/pages/JoinSpacePage'
 import { RegisterPage } from '../../src/pages/RegisterPage'
 import { DashboardPage } from '../../src/pages/DashboardPage'
 import { ProfilePage } from '../../src/pages/ProfilePage'
-import testData from '../../src/data/testData/web/TC32_web_abrirInvitacionEnLaSegundaSesionYRegistrarAlSegundoUsuario.json'
+import testData from '../../src/data/testData/web/TC32_web_abrirInvitacionEnLaSegundaSesionYRegistrarAlSegundoUsuario.json' with { type: 'json' }
 import { defineCaseData } from '../../src/utils/caseData'
 
 const data = defineCaseData(testData)

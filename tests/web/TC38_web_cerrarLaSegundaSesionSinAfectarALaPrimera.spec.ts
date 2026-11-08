@@ -3,7 +3,7 @@ import { expect, test } from '../../src/fixtures'
 import { ExpensesPage } from '../../src/pages/ExpensesPage'
 import { LoginPage } from '../../src/pages/LoginPage'
 import { ProfilePage } from '../../src/pages/ProfilePage'
-import testData from '../../src/data/testData/web/TC38_web_cerrarLaSegundaSesionSinAfectarALaPrimera.json'
+import testData from '../../src/data/testData/web/TC38_web_cerrarLaSegundaSesionSinAfectarALaPrimera.json' with { type: 'json' }
 import { defineCaseData } from '../../src/utils/caseData'
 
 const data = defineCaseData(testData)

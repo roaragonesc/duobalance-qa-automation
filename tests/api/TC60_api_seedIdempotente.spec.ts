@@ -1,5 +1,5 @@
 import { test, expect } from '../../src/fixtures/api'
-import testData from '../../src/data/testData/api/TC60_api_seedIdempotente.json'
+import testData from '../../src/data/testData/api/TC60_api_seedIdempotente.json' with { type: 'json' }
 import { defineCaseData } from '../../src/utils/caseData'
 import { mongoURL } from '../../src/config/localEnvironment'
 

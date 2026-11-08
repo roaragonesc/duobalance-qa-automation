@@ -1,5 +1,5 @@
 import { expect, test } from '../../src/fixtures'
-import testData from '../../src/data/testData/web/TC15_web_recorridoDeGastosCompartidosEIndividualesEntreRocioYPablo.json'
+import testData from '../../src/data/testData/web/TC15_web_recorridoDeGastosCompartidosEIndividualesEntreRocioYPablo.json' with { type: 'json' }
 import { defineCaseData } from '../../src/utils/caseData'
 
 const data = defineCaseData(testData)

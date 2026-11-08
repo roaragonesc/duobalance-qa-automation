@@ -2,7 +2,7 @@ import { expect, test } from '../../src/fixtures'
 
 import { BalancePage } from '../../src/pages/BalancePage'
 import { ProfilePage } from '../../src/pages/ProfilePage'
-import testData from '../../src/data/testData/web/TC23_web_elGastoNoGeneraBalanceParaNinguno.json'
+import testData from '../../src/data/testData/web/TC23_web_elGastoNoGeneraBalanceParaNinguno.json' with { type: 'json' }
 import { defineCaseData } from '../../src/utils/caseData'
 
 const data = defineCaseData(testData)

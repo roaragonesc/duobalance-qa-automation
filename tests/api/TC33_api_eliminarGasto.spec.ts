@@ -1,5 +1,5 @@
 import { test, expect, send } from '../../src/fixtures/endpointApi'
-import testData from '../../src/data/testData/api/TC33_api_eliminarGasto.json'
+import testData from '../../src/data/testData/api/TC33_api_eliminarGasto.json' with { type: 'json' }
 import { defineCaseData } from '../../src/utils/caseData'
 
 const data = defineCaseData(testData)

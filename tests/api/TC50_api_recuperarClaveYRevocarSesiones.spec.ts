@@ -1,5 +1,5 @@
 import { test, expect } from '../../src/fixtures/api'
-import testData from '../../src/data/testData/api/TC50_api_recuperarClaveYRevocarSesiones.json'
+import testData from '../../src/data/testData/api/TC50_api_recuperarClaveYRevocarSesiones.json' with { type: 'json' }
 import { defineCaseData } from '../../src/utils/caseData'
 
 const data = defineCaseData(testData)

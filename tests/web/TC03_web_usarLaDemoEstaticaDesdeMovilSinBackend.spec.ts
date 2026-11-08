@@ -4,7 +4,7 @@ import { AppNavigation } from '../../src/components/AppNavigation'
 import { frontendURL } from '../../src/config/environment'
 import { ExpensesPage } from '../../src/pages/ExpensesPage'
 import { LoginPage } from '../../src/pages/LoginPage'
-import testData from '../../src/data/testData/web/TC03_web_usarLaDemoEstaticaDesdeMovilSinBackend.json'
+import testData from '../../src/data/testData/web/TC03_web_usarLaDemoEstaticaDesdeMovilSinBackend.json' with { type: 'json' }
 import { defineCaseData } from '../../src/utils/caseData'
 
 const data = defineCaseData(testData)

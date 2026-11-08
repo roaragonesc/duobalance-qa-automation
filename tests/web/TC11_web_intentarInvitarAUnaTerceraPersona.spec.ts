@@ -1,7 +1,7 @@
 import { expect, test } from '../../src/fixtures'
 
 import { OnboardingPage } from '../../src/pages/OnboardingPage'
-import testData from '../../src/data/testData/web/TC11_web_intentarInvitarAUnaTerceraPersona.json'
+import testData from '../../src/data/testData/web/TC11_web_intentarInvitarAUnaTerceraPersona.json' with { type: 'json' }
 import { defineCaseData } from '../../src/utils/caseData'
 
 const data = defineCaseData(testData)

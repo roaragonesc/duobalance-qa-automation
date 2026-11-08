@@ -5,7 +5,7 @@ import { ForgotPasswordPage } from '../../src/pages/ForgotPasswordPage'
 import { LoginPage } from '../../src/pages/LoginPage'
 import { RegisterPage } from '../../src/pages/RegisterPage'
 import { ResetPasswordPage } from '../../src/pages/ResetPasswordPage'
-import testData from '../../src/data/testData/web/TC09_web_confirmarYRecuperarUnaCuentaEnLaDemoEstatica.json'
+import testData from '../../src/data/testData/web/TC09_web_confirmarYRecuperarUnaCuentaEnLaDemoEstatica.json' with { type: 'json' }
 import { defineCaseData } from '../../src/utils/caseData'
 
 const data = defineCaseData(testData)

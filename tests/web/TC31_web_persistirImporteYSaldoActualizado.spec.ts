@@ -3,7 +3,7 @@ import { expect, test } from '../../src/fixtures'
 import { BalancePage } from '../../src/pages/BalancePage'
 import { ExpensesPage } from '../../src/pages/ExpensesPage'
 import { ProfilePage } from '../../src/pages/ProfilePage'
-import testData from '../../src/data/testData/web/TC31_web_persistirImporteYSaldoActualizado.json'
+import testData from '../../src/data/testData/web/TC31_web_persistirImporteYSaldoActualizado.json' with { type: 'json' }
 import { defineCaseData } from '../../src/utils/caseData'
 
 const data = defineCaseData(testData)

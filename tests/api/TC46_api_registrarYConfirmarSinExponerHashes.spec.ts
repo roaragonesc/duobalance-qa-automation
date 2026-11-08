@@ -1,5 +1,5 @@
 import { test, expect } from '../../src/fixtures/api'
-import testData from '../../src/data/testData/api/TC46_api_registrarYConfirmarSinExponerHashes.json'
+import testData from '../../src/data/testData/api/TC46_api_registrarYConfirmarSinExponerHashes.json' with { type: 'json' }
 import { defineCaseData } from '../../src/utils/caseData'
 
 const data = defineCaseData(testData)

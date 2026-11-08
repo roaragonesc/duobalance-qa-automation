@@ -3,7 +3,7 @@ import { expect, test } from '../../src/fixtures'
 import { OnboardingPage } from '../../src/pages/OnboardingPage'
 import { ProfilePage } from '../../src/pages/ProfilePage'
 import { SpacePage } from '../../src/pages/SpacePage'
-import testData from '../../src/data/testData/web/TC18_web_confirmarQueSoloPermanecenElPrimerUsuarioYElSegundoUsuario.json'
+import testData from '../../src/data/testData/web/TC18_web_confirmarQueSoloPermanecenElPrimerUsuarioYElSegundoUsuario.json' with { type: 'json' }
 import { defineCaseData } from '../../src/utils/caseData'
 
 const data = defineCaseData(testData)

@@ -1,6 +1,6 @@
 import { readdir, readFile } from 'node:fs/promises'
 import { test, expect } from '../../src/fixtures/endpointApi'
-import testData from '../../src/data/testData/api/TC02_api_consultarOpenApi.json'
+import testData from '../../src/data/testData/api/TC02_api_consultarOpenApi.json' with { type: 'json' }
 import { defineCaseData } from '../../src/utils/caseData'
 
 const data = defineCaseData(testData)

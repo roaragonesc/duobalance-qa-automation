@@ -3,7 +3,7 @@ import { expect, test } from '../../src/fixtures'
 import { DashboardPage } from '../../src/pages/DashboardPage'
 import { ExpensesPage } from '../../src/pages/ExpensesPage'
 import { ProfilePage } from '../../src/pages/ProfilePage'
-import testData from '../../src/data/testData/web/TC22_web_ocultarElGastoPrivadoEnGastosYResumenesDeLaSegundaCuenta.json'
+import testData from '../../src/data/testData/web/TC22_web_ocultarElGastoPrivadoEnGastosYResumenesDeLaSegundaCuenta.json' with { type: 'json' }
 import { defineCaseData } from '../../src/utils/caseData'
 
 const data = defineCaseData(testData)
