@@ -7,7 +7,6 @@ const data = defineCaseData(testData)
 test.use({ caseData: data.setup })
 
 // Requiere API real: necesita un backend REST de testing aislado y no se puede probar en modo mock (demo de GitHub Pages).
-test.skip(true, 'Requiere API real: no se puede probar en modo mock (demo de GitHub Pages).')
 
 test('TC60_api_seedIdempotente', async () => {
   const { database: mongoose } = await import('../../src/integration/backendDatabase')

@@ -6,7 +6,6 @@ const data = defineCaseData(testData)
 test.use({ caseData: data.setup })
 
 // Requiere API real: necesita un backend REST de testing aislado y no se puede probar en modo mock (demo de GitHub Pages).
-test.skip(true, 'Requiere API real: no se puede probar en modo mock (demo de GitHub Pages).')
 
 test('TC45_api_consultarLiquidacion', async ({ household, settlementId }) => {
   await test.step('1. El usuario B consulta una liquidación del espacio', async () => {

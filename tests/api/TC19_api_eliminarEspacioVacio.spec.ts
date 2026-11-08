@@ -6,7 +6,6 @@ const data = defineCaseData(testData)
 test.use({ caseData: data.setup })
 
 // Requiere API real: necesita un backend REST de testing aislado y no se puede probar en modo mock (demo de GitHub Pages).
-test.skip(true, 'Requiere API real: no se puede probar en modo mock (demo de GitHub Pages).')
 
 test('TC19_api_eliminarEspacioVacio', async ({ actors, pendingInvitation }) => {
   await test.step('1. El usuario A elimina el espacio sin otros miembros', async () => {

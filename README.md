@@ -4,7 +4,8 @@
 
 Framework Playwright + TypeScript que prueba la demo publicada de DuoBalance
 (<https://roaragonesc.github.io/duobalance/>): una app de gastos compartidos en pareja.
-No arranca React, Vite ni ningun backend: solo ejecuta navegador contra la URL publicada.
+La suite web publicada solo ejecuta navegador contra esa URL. La suite API local arranca el backend real
+de un checkout de DuoBalance y MongoDB efimero aislado; no necesita frontend ni navegador.
 
 ## Ejecutar
 
@@ -35,13 +36,44 @@ referencia sin secretos.
 | Comando                | Para que                                                      |
 | ---------------------- | ------------------------------------------------------------- |
 | `npm run test:web`     | Ejecuta la suite web contra la demo (chromium)                |
-| `npm run test:api`     | Proyecto API: todos omitidos con motivo (sin backend)         |
+| `npm run test:api`     | API remota: solo salud/OpenAPI con `API_BASE_URL`; el resto se omite por aislamiento |
+| `npm run test:api:local` | 60 casos API contra backend real y MongoDB efimero, en cuatro shards |
+| `npm run test:api:local:direct -- TC01_api_consultarSalud` | Depura un caso API local |
+| `npm run report:api:local` | Abre el informe HTML de la API local |
 | `npm run test:list`    | Lista los tests sin ejecutarlos                               |
 | `npm run typecheck`    | Tipos TypeScript                                              |
 | `npm run lint`         | ESLint (TypeScript + reglas de Playwright)                    |
 | `npm run format:check` | Prettier (`npm run format` aplica el formato)                 |
 | `npm run lint:arch`    | Arquitectura, nombres, numeracion e inventario de componentes |
 | `npm run report`       | Abre el informe HTML de la ultima ejecucion                   |
+
+### API real local, sin mocks
+
+Requiere el checkout de DuoBalance con `apps/api/src/server.ts` y sus dependencias instaladas.
+Por defecto se busca en el directorio hermano `..\duobalance`; no hay que configurar una ruta si ya esta ahi.
+Si esta en otra ubicacion:
+
+```powershell
+$env:DUOBALANCE_APP_PATH = 'D:\ruta\duobalance'
+```
+
+```powershell
+npm run test:api:local
+npm run report:api:local
+```
+
+El lanzador configura `API_BASE_URL=http://127.0.0.1:4180/api/v1/`, `BASE_URL=http://localhost:5173`,
+`FRONTEND_ORIGIN=http://localhost:5173`, `NODE_ENV=test`, MongoDB local en `127.0.0.1:27018`
+y una base aleatoria `duobalance_test_<UUID>` por shard. Los dos puertos deben estar libres.
+No se carga ningun `.env` del backend ni se utilizan Atlas o cuentas reales. MongoDB usa replica set
+para las transacciones. No se arranca el frontend: el origen HTTP es un contrato de las peticiones.
+
+Los contextos API conservan las cookies de sesion; las escrituras autenticadas envian `X-CSRF-Token`.
+Las fixtures crean cuentas ficticias y leen confirmaciones/recuperaciones de un buzon JSON privado.
+El seed solo se ejecuta en su caso de idempotencia sobre la base ficticia de ese shard.
+El teardown elimina la base y el buzon propios y detiene los servicios propios.
+Informes y trazas: `playwright-report/local-api/` y `test-results/local-api/`.
+Consulta [tests/api/README.md](tests/api/README.md) para depurar un caso.
 
 ## Como esta construido el framework y por que
 
@@ -62,6 +94,7 @@ src/
       web/      TC<n>_web_<nombre>.json (41 casos)
       api/      TC<n>_api_<nombre>.json (60 casos)
   config/       entorno tipado y validado
+  integration/  arranque, seed y limpieza de servicios locales aislados
   utils/        utilidades pequenas y checkArchitecture (lint:arch)
 tests/
   web/          TC<n>_web_<nombre>.spec.ts
@@ -258,9 +291,12 @@ ni cambia la capacidad real de la demo. La validacion de esta estructura es esta
 | --------------------- | ----- | -------------------------------------------------------------------------------------------------------------------------------------- |
 | Se ejecutan           | 15    | Recorridos largos con `test.step`: acceso protegido, login, registro, recuperacion, onboarding hasta la invitacion, gastos y balances exactos sobre el seed de demo, panel mock, demo movil y Rocio con Pablo |
 | Omitidos con motivo (web) | 26 | Escenarios de dos cuentas: requieren API real y datos compartidos entre sesiones; no se pueden probar en modo mock |
-| Omitidos con motivo (API) | 60 | Suite REST completa: necesita un backend aislado, que queda fuera de este repositorio |
+| API local habilitada | 60 | Suite REST completa sobre backend real externo y MongoDB efimero mediante `test:api:local` |
+| API sin entorno local | 60 | Se omiten sin `API_BASE_URL`; con API remota solo se permiten salud/OpenAPI |
 
-Los omitidos conservan su codigo y llevan `// Requiere API real: ...` + `test.skip(true, '...')`. Los balances de
+Los omitidos web conservan su codigo y llevan `// Requiere API real: ...` + `test.skip(true, '...')`.
+En API, `apiIsolation` centraliza los skips por capacidad: activar la suite local no habilita escrituras remotas.
+Un caso habilitado no demuestra que haya pasado; consulta el informe de la ejecucion correspondiente. Los balances de
 los tests sobre el seed son expectativas fijas (por ejemplo 705,80 EUR compartidos; un gasto de 80,00 produce 785,80
 EUR y una deuda de 314,20 EUR), no valores calculados a partir de la respuesta observada.
 

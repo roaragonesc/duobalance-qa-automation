@@ -6,7 +6,6 @@ const data = defineCaseData(testData)
 test.use({ caseData: data.setup })
 
 // Requiere API real: necesita un backend REST de testing aislado y no se puede probar en modo mock (demo de GitHub Pages).
-test.skip(true, 'Requiere API real: no se puede probar en modo mock (demo de GitHub Pages).')
 
 test('TC55_api_protegerPrivacidadYPermisosDeGastos', async ({ household }) => {
   const date = new Date().toISOString().slice(0, 10)

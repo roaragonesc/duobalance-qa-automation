@@ -6,7 +6,6 @@ const data = defineCaseData(testData)
 test.use({ caseData: data.setup })
 
 // Requiere API real: necesita un backend REST de testing aislado y no se puede probar en modo mock (demo de GitHub Pages).
-test.skip(true, 'Requiere API real: no se puede probar en modo mock (demo de GitHub Pages).')
 
 test('TC50_api_recuperarClaveYRevocarSesiones', async ({ request, playwright, baseURL, account, mailToken }) => {
   const otherSession = await playwright.request.newContext({

@@ -39,9 +39,9 @@ la comprobacion admitida es `expectOpen()`.
 | --- | --- | --- |
 | `index.ts` | Web sobre la demo publicada (mock) | Pages y componentes (`loginPage`, `expensesPage`, `balancePage`, `navigation`, `demoPanel`...), `partnerPage` (omite con motivo: requiere API real), escenarios de una cuenta (`anaAccount`, `signedInAna`, `spaceOwner`, `recoveryRequested`, `pendingAna`, `confirmedAna`, `demoMember`, `demoSharedExpense`, `demoPrivateExpense`) y de dos cuentas bloqueados en mock (`couple`, `sharedExpense`, `privateExpense`, `sharedAndPrivateExpenses`, `balancedExpenses`) |
 | `pagesDemo.ts` | Specs que solo necesitan `page` en la demo estatica | Bloqueo de peticiones externas y `/__mock/` |
-| `api.ts` | Base de la suite API | Aislamiento, `account`, `mailToken` |
+| `api.ts` | Base de la suite API | `apiIsolation` habilita el entorno local y omite operaciones remotas; `account`, `mailToken` |
 | `financeApi.ts` | API con espacio compartido | `actors`, `household`, `send` |
-| `endpointApi.ts` | API por endpoint | `registeredAccount`, `confirmedAccount`, `authenticatedAccount`, `pendingInvitation`, `expense`, `income`, `settlementId`, `today` |
+| `endpointApi.ts` | API por endpoint | `registeredAccount`, `confirmedAccount`, `authenticatedAccount`, `pendingInvitation`, `expense`, `income`, `settlementId`, `today`, `endpointCoverage` (operaciones HTTP reales extraidas por AST, sin depender del titulo de los pasos), `normalizeApiOperation` (conserva parametros de rutas) |
 
 ## Datos (`src/data/`)
 
@@ -62,17 +62,17 @@ Un cambio de nombre del caso exige el mismo cambio en su JSON, junto con el impo
 | Archivo | Descripcion |
 | --- | --- |
 | `environment.ts` | `BASE_URL` y `API_BASE_URL` validadas (`frontendURL`, `apiURL`) |
-| `localEnvironment.ts` | Entorno local aislado para la suite API (puertos, base aleatoria, buzon de correo) |
+| `localEnvironment.ts` | Entorno local aislado para la suite API (puertos, base aleatoria, buzon de correo), checkout monorepo `apps/api` y `apps/web`, URLs y origen HTTP |
 
 ## Integracion local (`src/integration/`)
 
 | Archivo | Descripcion |
 | --- | --- |
-| `runApiServer.ts` | Arranca el backend aislado |
-| `runFrontend.ts` | Arranca el frontend local |
+| `runApiServer.ts` | Verifica puertos libres y arranca `apps/api` con MongoDB replica set efimero, sin cargar `.env` |
+| `runFrontend.ts` | Arranca `apps/web` local (no se utiliza en la suite HTTP) |
 | `apiTeardown.ts` | Limpia base, servicios y buzon propios |
-| `backendDatabase.ts` | Acceso a la base de test |
-| `backendSeed.ts` | Seed del backend |
+| `backendDatabase.ts` | Acceso a la base de test con Mongoose de `apps/api` |
+| `backendSeed.ts` | Seed y modelo User del backend `apps/api` |
 | `runLocalApiTests.ts` | Lanzador de la suite API local |
 
 ## Utilidades (`src/utils/`)
@@ -91,7 +91,7 @@ Un cambio de nombre del caso exige el mismo cambio en su JSON, junto con el impo
 | Suite | Archivos | Numeracion | Notas |
 | --- | --- | --- | --- |
 | `tests/web/` | `TC<n>_web_<nombre>.spec.ts` | TC01-TC41 | 15 recorridos se ejecutan (TC01-TC15); 26 de dos cuentas (TC16-TC41) se omiten con `// Requiere API real` |
-| `tests/api/` | `TC<n>_api_<nombre>.spec.ts` | TC01-TC60 | Los 60 se omiten con `// Requiere API real` (necesitan un backend REST aislado) |
+| `tests/api/` | `TC<n>_api_<nombre>.spec.ts` | TC01-TC60 | 60 casos habilitados solo en API local aislada; sin backend se omiten, API remota solo salud/OpenAPI |
 
 Para consultar la organizacion en pasos `test.step('N. ...')` numerados, utiliza `tests/web/TC13_web_recorridoDeGastoIndividualYPrivacidadEnLaDemo.spec.ts`.
 El recorrido `tests/web/TC15_web_recorridoDeGastosCompartidosEIndividualesEntreRocioYPablo.spec.ts` muestra dos identidades demo en un mismo navegador.

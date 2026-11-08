@@ -4,6 +4,7 @@ import { resolve } from 'node:path'
 import type { APIRequestContext, APIResponse } from '@playwright/test'
 import { test as base, expect } from './api'
 import { mailDirectory } from '../config/localEnvironment'
+import { frontendURL } from '../config/environment'
 import { requiredData, type UserData } from '../utils/caseData'
 
 export type Actor = { api: APIRequestContext; csrf: string; id: string; email: string; name: string }
@@ -30,7 +31,7 @@ export const test = base.extend<Fixtures>({
       const email = input.email.replace('@', `-${randomUUID()}@`)
       const api = await playwright.request.newContext({
         baseURL,
-        extraHTTPHeaders: { Origin: 'http://localhost:5173' },
+        extraHTTPHeaders: { Origin: new URL(frontendURL).origin },
       })
       contexts.push(api)
       const registered = await api.post('auth/register', { data: { name, email, password } })
