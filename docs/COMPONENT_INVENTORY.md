@@ -1,6 +1,6 @@
 # Inventario de componentes
 
-Indice de todo lo que ofrece el framework. Los agentes deben leerlo antes de generar o cambiar codigo y actualizarlo cuando anadan, borren o renombren una Page, un componente, una fixture, un dato o una utilidad. `npm run lint:arch` falla si un archivo de `src/` no aparece aqui (comprobacion de sincronizacion).
+Indice de todo lo que ofrece el framework. Los agentes deben leerlo antes de generar o cambiar codigo y actualizarlo cuando anadan, borren o renombren una Page, un componente, una fixture, un dato o una utilidad. `npm run lint:arch` falla si un archivo de `src/` no aparece aqui.
 
 ## Pages (`src/pages/`)
 
@@ -33,12 +33,8 @@ Una Page por pantalla de la aplicacion. Locators como campos `readonly` del cons
 
 | Archivo | Uso | Contenido |
 | --- | --- | --- |
-| `index.ts` | Web sobre la demo publicada (mock, `chromium`) | Pages y componentes (`loginPage`, `expensesPage`, `balancePage`, `navigation`, `demoPanel`...), `partnerPage` (omite con motivo: requiere API real), escenarios de una cuenta (`anaAccount`, `signedInAna`, `spaceOwner`, `recoveryRequested`, `pendingAna`, `confirmedAna`, `demoMember`, `demoSharedExpense`, `demoPrivateExpense`) y de dos cuentas bloqueados en mock (`couple`, `sharedExpense`, `privateExpense`, `sharedAndPrivateExpenses`, `balancedExpenses`) |
+| `index.ts` | Web sobre la demo publicada (mock) | Pages y componentes (`loginPage`, `expensesPage`, `balancePage`, `navigation`, `demoPanel`...), `partnerPage` (omite con motivo: requiere API real), escenarios de una cuenta (`anaAccount`, `signedInAna`, `spaceOwner`, `recoveryRequested`, `pendingAna`, `confirmedAna`, `demoMember`, `demoSharedExpense`, `demoPrivateExpense`) y de dos cuentas bloqueados en mock (`couple`, `sharedExpense`, `privateExpense`, `sharedAndPrivateExpenses`, `balancedExpenses`) |
 | `pagesDemo.ts` | Specs que solo necesitan `page` en la demo estatica | Bloqueo de peticiones externas y `/__mock/` |
-| `apiWeb.ts` | Web e2e contra la API real local (`*_web_e2e_*`) | `partnerPage` real, `users`, `confirmationUrl`, `registeredPair`, `apiCouple`, `apiExpenses`, `apiBalanced` |
-| `api.ts` | Base API | Aislamiento, `account`, `mailToken` |
-| `financeApi.ts` | API con espacio compartido | `actors`, `household`, `send` |
-| `endpointApi.ts` | API por endpoint | `registeredAccount`, `confirmedAccount`, `authenticatedAccount`, `pendingInvitation`, `expense`, `income`, `settlementId`, `today` |
 
 ## Datos (`src/data/`)
 
@@ -52,19 +48,7 @@ Una Page por pantalla de la aplicacion. Locators como campos `readonly` del cons
 
 | Archivo | Descripcion |
 | --- | --- |
-| `environment.ts` | `BASE_URL`/`API_BASE_URL` validados (`frontendURL`, `apiURL`) |
-| `localEnvironment.ts` | Entorno local aislado (puertos, base aleatoria, buzon de correo) |
-
-## Integracion local (`src/integration/`)
-
-| Archivo | Descripcion |
-| --- | --- |
-| `runApiServer.ts` | Arranca el backend aislado (4180) |
-| `runFrontend.ts` | Arranca el frontend (4176) |
-| `apiTeardown.ts` | Limpia base, servicios y buzon propios |
-| `backendDatabase.ts` | Acceso a la base de test |
-| `backendSeed.ts` | Seed del backend |
-| `runLocalApiTests.ts` | Lanzador de la suite API local en 4 shards |
+| `environment.ts` | `BASE_URL` validada (`frontendURL`) |
 
 ## Utilidades (`src/utils/`)
 
@@ -72,7 +56,7 @@ Una Page por pantalla de la aplicacion. Locators como campos `readonly` del cons
 | --- | --- |
 | `application.ts` | `appRoute`, `applicationPath` (hash router) |
 | `demoScenarios.ts` | Escenarios por usuario demo |
-| `networkGuard.ts` | Bloqueo de peticiones Supabase |
+| `networkGuard.ts` | Bloqueo de peticiones Supabase/REST/fetch |
 | `sharedSpace.ts` | `registerUser`, `prepareSharedSpace` |
 | `checkArchitecture.ts` | `npm run lint:arch` (arquitectura, nombres e inventario) |
 
@@ -80,7 +64,6 @@ Una Page por pantalla de la aplicacion. Locators como campos `readonly` del cons
 
 | Suite | Archivos | Numeracion | Notas |
 | --- | --- | --- | --- |
-| `tests/web/` | `TC<n>_web_<nombre>.spec.ts` | TC01-TC83 | `TC04`, `TC08`-`TC12` son `web_e2e` (API real local) |
-| `tests/api/` | `TC<n>_api_<nombre>.spec.ts` | TC01-TC60 | Solo TC01 y TC02 corren contra un backend remoto de testing |
+| `tests/web/` | `TC<n>_web_<nombre>.spec.ts` | TC01-TC66 | 40 se ejecutan; 26 de dos cuentas se omiten con `// Requiere API real` |
 
-Ejemplo de referencia: `tests/web/TC29_web_crearUnGastoIndividualDesdeLaPrimeraCuenta.spec.ts` (web) y `tests/api/TC47_api_iniciarSesionConCookieHttpOnly.spec.ts` (api).
+Ejemplo de referencia: `tests/web/TC23_web_crearUnGastoIndividualDesdeLaPrimeraCuenta.spec.ts`.

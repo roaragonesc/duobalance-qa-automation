@@ -30,9 +30,7 @@ export class OnboardingPage extends BasePage {
 
   async createSpace(name: string, splitMethod: SplitChoice) {
     await this.spaceNameField.fill(name)
-    await this.page
-      .getByRole('radio', { name: splitMethod === 'equal' ? '50/50' : 'Proporcional' })
-      .check()
+    await this.page.getByRole('radio', { name: splitMethod === 'equal' ? '50/50' : 'Proporcional' }).check()
     await this.createSpaceButton.click()
   }
 

@@ -5,17 +5,13 @@
   "main": "index.js",
   "scripts": {
     "test": "playwright test",
-    "test:ui": "playwright test --project=chromium",
-    "test:api": "playwright test --project=api",
-    "test:api:local": "node --import tsx src/integration/runLocalApiTests.ts",
-    "test:api:local:direct": "playwright test --config playwright.api-local.config.ts",
-    "test:e2e:local": "playwright test --config playwright.api-e2e.config.ts",
     "test:list": "playwright test --list",
     "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "lint:arch": "node --import tsx src/utils/checkArchitecture.ts",
-    "report": "playwright show-report playwright-report/published",
-    "report:api:local": "playwright show-report playwright-report/local-api",
-    "report:e2e:local": "playwright show-report playwright-report/local-api-e2e"
+    "report": "playwright show-report playwright-report"
   },
   "repository": {
     "type": "git",
@@ -30,11 +26,15 @@
   },
   "homepage": "https://github.com/roaragonesc/duobalance-qa-automation#readme",
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.64.1",
     "@types/node": "^26.6.6",
-    "mongodb-memory-server": "^10.2.0",
-    "mongoose": "^8.19.0",
+    "eslint": "^10.14.0",
+    "eslint-plugin-playwright": "^2.12.2",
+    "globals": "^17.14.0",
+    "prettier": "^3.9.10",
     "tsx": "^4.20.0",
-    "typescript": "~7.0.2"
+    "typescript": "~6.0",
+    "typescript-eslint": "^8.72.1"
   }
 }

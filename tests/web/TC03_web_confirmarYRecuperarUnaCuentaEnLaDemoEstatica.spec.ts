@@ -34,10 +34,7 @@ test('TC03_web_confirmarYRecuperarUnaCuentaEnLaDemoEstatica', async ({ page }) =
   await forgotPassword.sendLinkButton.click()
   await expect(forgotPassword.status).toContainText('Si existe una cuenta con ese correo')
   await demoPanel.showButton.click()
-  await Promise.all([
-    page.waitForEvent('domcontentloaded'),
-    forgotPassword.openMockRecoveryLink(email),
-  ])
+  await Promise.all([page.waitForEvent('domcontentloaded'), forgotPassword.openMockRecoveryLink(email)])
   await expect(page).toHaveURL(/#\/reset-password\?mock_token=/)
   await expect(resetPassword.passwordField).toBeVisible()
 })

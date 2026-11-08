@@ -30,10 +30,7 @@ export class DemoPanel {
   }
 
   async selectUser(user: DemoUserKey | null) {
-    await Promise.all([
-      this.page.waitForEvent('domcontentloaded'),
-      this.userSelect.selectOption(user ?? ''),
-    ])
+    await Promise.all([this.page.waitForEvent('domcontentloaded'), this.userSelect.selectOption(user ?? '')])
     await this.panel.waitFor()
   }
 }

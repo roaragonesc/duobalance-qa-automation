@@ -1,5 +1,5 @@
 export function appRoute(path: string): string {
-  return process.env.DUOBALANCE_LOCAL_MODE === 'api-e2e' ? path : `./#${path}`
+  return `./#${path}`
 }
 
 export function applicationPath(url: URL): string {

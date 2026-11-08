@@ -8,11 +8,7 @@ export class DemoScenarios {
   private readonly loginPage: LoginPage
   private readonly page: Page
 
-  constructor(
-    demoPanel: DemoPanel,
-    loginPage: LoginPage,
-    page: Page,
-  ) {
+  constructor(demoPanel: DemoPanel, loginPage: LoginPage, page: Page) {
     this.demoPanel = demoPanel
     this.loginPage = loginPage
     this.page = page
