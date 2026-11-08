@@ -33,7 +33,7 @@ Una Page por pantalla de la aplicacion. Locators como campos `readonly` del cons
 
 | Archivo | Uso | Contenido |
 | --- | --- | --- |
-| `index.ts` | Web sobre la demo publicada (mock, `chromium`) | Pages y componentes (`loginPage`, `expensesPage`, `balancePage`, `navigation`, `demoPanel`...), `partnerPage`, escenarios (`anaAccount`, `couple`, `sharedExpense`, `privateExpense`, `sharedAndPrivateExpenses`, `balancedExpenses`, `spaceOwner`, `signedInAna`, `recoveryRequested`, `pendingAna`, `confirmedAna`, `demoSharedExpense`, `demoPrivateExpense`) |
+| `index.ts` | Web sobre la demo publicada (mock, `chromium`) | Pages y componentes (`loginPage`, `expensesPage`, `balancePage`, `navigation`, `demoPanel`...), `partnerPage` (omite con motivo: requiere API real), escenarios de una cuenta (`anaAccount`, `signedInAna`, `spaceOwner`, `recoveryRequested`, `pendingAna`, `confirmedAna`, `demoMember`, `demoSharedExpense`, `demoPrivateExpense`) y de dos cuentas bloqueados en mock (`couple`, `sharedExpense`, `privateExpense`, `sharedAndPrivateExpenses`, `balancedExpenses`) |
 | `pagesDemo.ts` | Specs que solo necesitan `page` en la demo estatica | Bloqueo de peticiones externas y `/__mock/` |
 | `apiWeb.ts` | Web e2e contra la API real local (`*_web_e2e_*`) | `partnerPage` real, `users`, `confirmationUrl`, `registeredPair`, `apiCouple`, `apiExpenses`, `apiBalanced` |
 | `api.ts` | Base API | Aislamiento, `account`, `mailToken` |

@@ -51,7 +51,11 @@ type E2EFixtures = {
   balancedExpenses: void
   demoSharedExpense: void
   demoPrivateExpense: void
+  demoMember: void
 }
+
+const requiresRealApiReason =
+  'Requiere API real y dos sesiones con datos compartidos; no se puede probar en modo mock (demo de GitHub Pages).'
 
 export const test = base.extend<E2EFixtures>({
   anaAccount: async ({ page, demoPanel, resetMockData: _reset }, provideFixtures) => {
@@ -108,20 +112,23 @@ export const test = base.extend<E2EFixtures>({
     await partnerExpenses.addExpense(e2eExpenses.fuel)
     await provideFixtures()
   },
-  demoSharedExpense: async ({ demoPanel, expensesPage, resetMockData: _reset }, provideFixtures) => {
-    await demoPanel.selectUser('rocio')
+  demoSharedExpense: async ({ demoMember: _member, expensesPage }, provideFixtures) => {
     await expensesPage.visit()
     await expensesPage.addExpense(demoExpenses.shared)
     await provideFixtures()
   },
-  demoPrivateExpense: async ({ demoPanel, expensesPage, resetMockData: _reset }, provideFixtures) => {
-    await demoPanel.selectUser('rocio')
+  demoPrivateExpense: async ({ demoMember: _member, expensesPage }, provideFixtures) => {
     await expensesPage.visit()
     await expensesPage.addExpense(demoExpenses.private)
     await provideFixtures()
   },
+  demoMember: async ({ demoPanel, resetMockData: _reset }, provideFixtures) => {
+    await demoPanel.selectUser('rocio')
+    await provideFixtures()
+  },
   partnerPage: async ({ page }, provideFixtures) => {
-    test.skip(true, 'Bloqueado: Pages no sincroniza datos entre BrowserContexts; requiere backend compartido.')
+    test.info().annotations.push({ type: 'bloqueado', description: requiresRealApiReason })
+    test.skip(true, requiresRealApiReason)
     await provideFixtures(page)
   },
   supabaseRequests: async ({ context }, provideFixtures) => {

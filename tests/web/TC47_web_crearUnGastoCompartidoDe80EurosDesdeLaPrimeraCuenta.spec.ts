@@ -1,8 +1,9 @@
 import { expect, test } from '../../src/fixtures'
 
 test('TC47_web_crearUnGastoCompartidoDe80EurosDesdeLaPrimeraCuenta', async ({
-  couple: _couple, expensesPage,
+  demoMember: _member, expensesPage,
 }) => {
+  await expensesPage.visit()
   await expensesPage.addExpense({ description: 'Supermercado E2E', amount: '80,00' })
   await expect(expensesPage.row('Supermercado E2E')).toHaveCount(1)
   await expect(expensesPage.row('Supermercado E2E')).toContainText('80,00')

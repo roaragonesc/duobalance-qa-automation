@@ -1,7 +1,7 @@
 import { expect, test } from '../../src/fixtures'
 
 test('TC57_web_crearUnGastoComunYOtroPrivadoDesdeLaPrimeraCuenta', async ({
-  couple: _couple, expensesPage,
+  demoMember: _member, expensesPage,
 }) => {
   await expensesPage.visit()
   await expensesPage.addExpense({ description: 'Supermercado E2E', amount: '80,00' })

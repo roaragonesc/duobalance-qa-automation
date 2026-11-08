@@ -20,7 +20,7 @@ npm run report
 ```
 
 `BASE_URL` permite cambiar el frontend. Se normaliza la barra final; las rutas
-usan `./#/login`, etc., para conservar `/duobalance/`. La prueba TC24 verifica
+usan `./#/login`, etc., para conservar `/duobalance/`. La prueba TC05 verifica
 HTTP 200, URL completa (origen, subdirectorio y hash) y navegacion al registro.
 
 ```powershell
@@ -30,6 +30,95 @@ npm run test:ui
 
 Las variables se leen del entorno, **no se carga `.env` automaticamente**.
 [.env.example](.env.example) es una referencia, no contiene secretos.
+
+## Como esta construido el framework y por que
+
+### Objetivo
+
+Demostrar un framework de automatizacion que una empresa pueda mantener y
+ampliar: UI, API REST y e2e con dos usuarios reales, con reglas
+de arquitectura comprobadas por maquina y diagnostico claro de fallos. Prueba
+tres entornos, cada uno con su configuracion, informe y pipeline:
+
+| Modo | Contra que corre | Comando | Por que existe |
+| --- | --- | --- | --- |
+| Pages (`chromium`) | Demo publicada en GitHub Pages (mock, solo frontend) | `npm run test:ui` | Rapido y sin infraestructura; valida UI y flujos de una cuenta |
+| API local | Backend real con MongoDB efimero | `npm run test:api:local` | Valida REST, permisos y seed sin tocar datos ajenos |
+| Web e2e local | Frontend + backend aislados, dos navegadores independientes | `npm run test:e2e:local` | Unico modo donde se puede probar de verdad "dos usuarios comparten datos" |
+
+### Estructura
+
+```text
+src/
+  pages/        una Page Object por pantalla de la aplicacion
+  components/   Blocks reutilizables (navegacion lateral, panel mock)
+  fixtures/     Pages por fixture + preparacion de escenarios
+  data/         datos ficticios (usuarios, gastos)
+  config/       entorno tipado y validado
+  integration/  arranque/teardown de backend y frontend locales
+  utils/        utilidades pequenas y checkArchitecture (lint:arch)
+tests/
+  web/          TC<n>_web_<nombre>.spec.ts  (+ TC<n>_web_e2e_ para API real)
+  api/          TC<n>_api_<nombre>.spec.ts
+docs/           guia de agentes e inventario de componentes
+```
+
+Flujo de dependencias permitido: `spec -> fixtures -> pages -> components / utils / config / data`.
+Un spec solo cuenta el escenario y sus expectativas; nunca contiene locators.
+
+### Decisiones y motivos
+
+| Decision | Por que | Coste asumido |
+| --- | --- | --- |
+| Framework en `src/`, `tests/` solo con `web/` y `api/` | Separa lo que se prueba de como se prueba; cualquiera localiza una pieza en segundos | Rutas relativas `../../src/...` en los specs |
+| Una Page Object por pantalla (`/expenses` -> `ExpensesPage`) | Un unico propietario por locator: si cambia la UI se corrige en un archivo | Mas archivos pequenos |
+| Locators como campos `readonly` del constructor; sin expectativas de negocio en la Page | La Page describe como usar la pantalla; el spec decide que es correcto | El spec debe escribir sus `expect` |
+| `BasePage` minima (`visit`, `reload`, `main`, `alert`, `status`, `expectOpen`) y composicion con componentes | Evita jerarquias profundas y "cajones" de metodos | Algo de repeticion deliberada |
+| Preparacion de escenarios en fixtures (`couple`, `sharedExpense`, `spaceOwner`...) | Cada test arranca aislado y no repite el setup; el orden de ejecucion no importa | Hay que leer la cadena de fixtures para saber el estado |
+| Un test por archivo; archivo = titulo del test | Fallos y resultados localizables por nombre, ejecucion paralela segura, diffs pequenos | Numeracion estricta (ver mantenimiento) |
+| Numeracion `TC01...` independiente en web y api | Cada suite se lee de forma autonoma | Insertar un test intermedio implica renumerar |
+| Tres configuraciones/jobs independientes | Pages nunca arranca servicios; API no instala Chromium; un fallo de infraestructura no oculta otro | Mas configuracion que un unico `playwright.config.ts` |
+| Entorno local aislado (BD aleatoria, MongoDB efimero, puertos fijos, buzon JSON propio, teardown) | Se puede probar de forma destructiva sin riesgo y sin datos compartidos | Primera ejecucion lenta (descarga de MongoDB) |
+| Bloqueos como `skipped` con motivo, nunca como aprobados | El informe no miente: se ve que no se puede probar y por que | Hay tests "en espera" de una API real |
+| Sin reintentos ni `continue-on-error` | Un test intermitente es un defecto a corregir, no a esconder | Mas exigencia en la sincronizacion |
+| `npm run lint:arch` en CI | Las reglas de arquitectura las comprueba una maquina, no la memoria de quien revisa | Hay que mantener el propio script |
+| Inventario (`docs/COMPONENT_INVENTORY.md`) + agente de IA con flujo documentado | Un agente (o una persona nueva) encuentra todo lo existente antes de crear algo duplicado | El inventario hay que mantenerlo (lo exige `lint:arch`) |
+
+### Reglas que se hacen cumplir automaticamente (`npm run lint:arch`)
+
+- `tests/` contiene solo `web/` y `api/`; el resto del framework esta en `src/`.
+- Un test por spec, archivo con el mismo nombre que el titulo, formato `TC<n>_web_`, `TC<n>_web_e2e_` o `TC<n>_api_`, numeracion sin huecos.
+- Sin locators ni `goto` en specs; las Pages no importan fixtures; los specs web no usan fixtures de la API y los specs API no usan Pages.
+- Sin `waitForTimeout`, `networkidle`, `force: true`, `test.only` ni `test.fixme`; `test.skip` solo como bloqueo de capacidad con comentario `// Requiere API real: ...`.
+- Todo archivo de `src/` figura en `docs/COMPONENT_INVENTORY.md`.
+
+### Mantenimiento
+
+| Quiero... | Pasos |
+| --- | --- |
+| Anadir un test | Crea la Page/fixture que falte, anade el spec con el siguiente `TC<n>` libre de su suite (archivo = titulo) y ejecuta `npm run typecheck` y `npm run lint:arch` |
+| Insertar un test en medio | Renumera los siguientes de esa suite (titulo + archivo); `lint:arch` avisa de huecos o repetidos |
+| Anadir una pantalla | Crea `src/pages/<Nombre>Page.ts` extendiendo `BasePage`, registrala como fixture en `src/fixtures/index.ts` y anadela al inventario |
+| Cambia un selector o texto de la UI | Corrigelo solo en la Page o componente propietario, nunca en el spec; comprueba el spec afectado y los que usan esa Page |
+| Un test falla | Clasifica la causa (producto, test, Page, datos, entorno) antes de tocar nada; no se debilita la asercion ni se usa `skip` para aprobar |
+| Cambiar de entorno | `BASE_URL` / `API_BASE_URL` (se validan al arrancar); GitHub Pages se rechaza como API |
+| Actualizar dependencias | Sube `@playwright/test` y reinstala navegadores (`npx playwright install chromium`); despues `typecheck`, `lint:arch` y una pasada de `--project=chromium` |
+| Revisar la CI | `playwright.yml` (PR, manual y 03:00 Europe/Madrid) y `local-qa.yml` (API y e2e locales); ambos ejecutan `typecheck` y `lint:arch` |
+
+El flujo completo para personas y agentes esta en
+[docs/AI_AGENT_WORKFLOW.md](docs/AI_AGENT_WORKFLOW.md).
+
+### Limitaciones conocidas
+
+- La demo de Pages no comparte datos entre navegadores: los tests de dos cuentas
+  (34 en web) quedan omitidos con motivo; solo los 6 `web_e2e` los cubren de verdad.
+  Migrar el resto a `fixtures/apiWeb.ts` es el siguiente paso natural.
+- Hay escenarios casi identicos heredados de la suite original (por ejemplo TC25/TC47
+  o TC29/TC51) pendientes de depurar.
+- No hay ESLint ni Prettier: las reglas de arquitectura las cubre `lint:arch`, pero
+  el estilo de codigo no se comprueba automaticamente.
+- Falta `src/services/` para clientes API reutilizables (hoy viven en las fixtures API).
+- La pipeline esta revisada pero aun no se ha ejecutado en GitHub Actions.
 
 ## Despliegue inspeccionado
 
@@ -58,41 +147,39 @@ componentes, fixtures, datos y helpers funcionales. El repositorio original no
 se modifica. Se conservan IDs, escenarios y aserciones; solo se adaptan rutas,
 esperas al hash y preparacion compatible con el despliegue.
 
-El seed importa modelos y MongoDB del backend original: su fuente completa
-esta en [docs/preserved/seedIdempotente.spec.ts.original](docs/preserved/seedIdempotente.spec.ts.original).
+El seed importa modelos y MongoDB del backend original: su spec (TC60) los carga
+de forma dinamica, se ejecuta en modo API local y se bloquea
+en modo remoto sin cargar modulos del backend.
+La version original sin adaptar sigue en el repositorio de la aplicacion
+(`test-framework`, revision indicada arriba).
 El spec descubrible conserva su ID: se ejecuta en modo API local y se bloquea
 en modo remoto sin cargar modulos del backend.
 No se migran suites unitarias/component testing/DB que necesitan compilar o
 ejecutar la aplicacion, ni launchers de servidores locales.
 
-Se agregan TC24-TC26 para acceso publicado, calculo exacto de balances,
-edicion/persistencia local y gastos privados. No sustituyen los recorridos
-multiusuario originales.
+Cobertura web actual (`tests/web/`, TC01-TC83; numeracion propia de web):
 
 | Casos web | Estado/capacidad |
 | --- | --- |
-| TC01-TC08 | Login valido/invalido, validaciones, registro/confirmacion, recuperacion, rutas protegidas, onboarding y creacion de espacio |
-| TC20-TC22 | Panel accesible, demo movil, gasto y recarga, confirmacion y recuperacion demo |
-| TC24-TC26 | URL publicada, navegacion, gastos compartidos/privados, edicion, balances exactos y persistencia en un navegador |
-| TC27-TC28 | Redireccion a la ruta privada tras login y bloqueo al volver atras tras logout; tests independientes |
-| TC09-TC19 | Bloqueados: necesitan estado compartido entre sesiones independientes |
-| TC23 | Registro, confirmacion e inicio de sesiones: activo solo en web API local |
-| TC29-TC33 | Invitaciones, gastos, privacidad, balance y sesiones: activos solo en web API local |
+| TC01, TC05-TC07, TC13-TC20, TC40-TC42, TC74-TC83 | Rutas protegidas, URL publicada, login, registro, validaciones, recuperacion y onboarding en un navegador: se ejecutan contra la demo |
+| TC02, TC03, TC66-TC73 | Demo movil, confirmacion/recuperacion demo, panel accesible, gastos y balances exactos sobre el seed de demo: se ejecutan |
+| TC23, TC25, TC29, TC45, TC47, TC51, TC57, TC62 | Gastos y limite de miembros con una sola cuenta (miembro de demo): se ejecutan |
+| TC04, TC08-TC12 (`web_e2e`) | Dos sesiones reales con API real local: `npm run test:e2e:local` |
+| Resto de tests de dos cuentas | **Bloqueados en modo mock**: requieren API real y dos sesiones con datos compartidos. Se omiten con motivo y la anotacion `bloqueado`, no se borran |
 
-TC25 parte del seed de demo: 705,80 EUR compartidos. Un gasto de 80,00
-produce 785,80 EUR, aportacion 392,90 EUR y deuda acumulada 314,20 EUR.
-Editar ese gasto a 100,00 produce 805,80 EUR y deuda 304,20 EUR.
-TC26 comprueba que 35,00 EUR privados no alteran los 705,80 EUR compartidos
-ni la deuda acumulada inicial de 354,20 EUR. Son expectativas fijas del seed,
+Los tests de dos cuentas conservan su codigo; solo se activarian con una API
+real compartida (fixtures `apiWeb`). TC69 parte del seed de demo: 705,80 EUR
+compartidos. Un gasto de 80,00 produce 785,80 EUR, aportacion 392,90 EUR y
+deuda acumulada 314,20 EUR; editarlo a 100,00 produce 805,80 EUR y deuda
+304,20 EUR (TC70). TC72 comprueba que 35,00 EUR privados no alteran los 705,80 EUR
+compartidos ni la deuda inicial de 354,20 EUR. Son expectativas fijas del seed,
 no valores calculados a partir de la respuesta observada.
 
 Los bloqueos se muestran como **skipped con motivo**, nunca como aprobados.
 No se usa `skip` para ocultar fallos de los escenarios activos.
 
-Los antiguos pasos TC39-TC41 del recorrido TC07 se separaron en tres specs
-independientes: TC07 (sin sesion), TC27 (redireccion tras login) y TC28
-(volver atras tras logout). Cada caso prepara su propia sesion y no depende
-del resultado ni del estado de otro test.
+Cada caso prepara su propia sesion y no depende del resultado ni del estado de
+otro test.
 
 ## Un archivo por test y un Page Object por pantalla
 
@@ -119,7 +206,7 @@ src/
 tests/
   api/          specs REST
   web/          specs UI
-docs/preserved/ fuentes originales conservadas
+docs/            guia de agentes e inventario de componentes
 ```
 
 Cada pantalla de la aplicacion tiene su Page Object en `src/pages`
@@ -221,12 +308,12 @@ proxy al backend aislado. Usa rutas normales, no hash, y permite REST solo a
 ese origen local; Pages mantiene su guardia sin REST y su hash router.
 Los dos usuarios tienen BrowserContexts independientes y correo ficticio.
 
-El antiguo recorrido TC23 se conserva en
-[docs/preserved/recorridoFinancieroApi.spec.ts.original](docs/preserved/recorridoFinancieroApi.spec.ts.original).
-Sus seis escenarios se separaron en TC23 y TC29-TC33: un test por archivo,
-sin `test.step` y con preparacion propia mediante fixtures UI. Conservan
-las aserciones originales; ningun caso necesita que se ejecute otro antes.
-Esto no implica que todos los demas recorridos heredados ya esten separados.
+El antiguo recorrido financiero con API se conserva en el repositorio de la aplicacion
+(`test-framework`).
+Sus seis escenarios son hoy los tests `TC04_web_e2e_` y `TC08_web_e2e_` a
+`TC12_web_e2e_`: un test por archivo, sin `test.step` y con preparacion propia
+mediante fixtures UI. Conservan las aserciones originales; ningun caso necesita
+que se ejecute otro antes.
 
 Usa `npm run report:api:local` y `npm run report:e2e:local` para abrir los
 informes locales sin mezclarlos con el informe publicado.
@@ -265,29 +352,27 @@ solo a este framework. El workflow Pages sigue separado y no arranca servicios.
 Los resultados locales se generan en `playwright-report/` y `test-results/`;
 no se versionan. Cada ejecucion reemplaza el informe local anterior.
 
-## Validacion realizada (2026-11-03)
+## Estado de validacion
 
-- `npm run typecheck`: correcto.
-- `npx playwright test --list`: 138 tests (78 web + 60 API).
-- `npx playwright test --project=chromium`: **14 passed, 12 skipped, 0 failed**.
-- Proyecto API sin backend: **60 skipped, 0 passed**; no representa validacion REST.
+Los resultados siguientes son **historicos** (2026-11-03, antes de reorganizar
+el framework en `src/`, dividir los tests y renumerarlos). Tras esa
+reorganizacion solo se han comprobado `npm run typecheck`, `npm run lint:arch` y
+`npx playwright test --list` (137 tests en `chromium` + `api`: 77 web + 60 API; 6 e2e
+adicionales con `playwright.api-e2e.config.ts`); los tests no se han vuelto a
+ejecutar, asi que conviene una pasada completa antes de publicar.
+
+- Resultados de entonces con `--project=chromium`: 14 passed, 12 skipped, 0 failed.
+- Proyecto API sin backend: todos skipped; no representa validacion REST.
 - Verificado el destino por defecto, el override conservando subdirectorios y
   el rechazo de GitHub Pages como API.
-- Los informes locales de esta validacion se conservaron por separado:
-  UI en `playwright-report/index.html` y `test-results/junit.xml`;
-  API en `playwright-report/api/index.html` y `test-results/api-junit.xml`.
 - La pipeline se ha creado y revisado, pero no se ha ejecutado en GitHub Actions:
   requiere publicar los cambios. No se ha hecho commit ni push.
 
-  ### Resultados observados de las suites locales
+### Resultados observados de las suites locales (historicos)
 
-  - API REST: **58/58 aprobados**, incluidos seed, permisos, correo JSON y base
-    aleatoria; cuatro shards secuenciales y limpieza completada.
-  - Web con API local: **6/6 aprobados**, con dos sesiones independientes,
-    invitacion, gastos privados/compartidos, balance y persistencia.
-  - TypeScript: correcto antes de la ultima sustitucion del comando de arranque
-    Vite por `src/integration/runFrontend.ts`. Esa ultima modificacion se deja
-    deliberadamente sin ejecutar ni volver a validar.
-  - Por peticion expresa, no se vuelven a lanzar pruebas en esta iteracion.
-    Los resultados anteriores no deben interpretarse como validacion de ese
-    ultimo cambio del lanzador frontend.
+- API REST: 58/58 aprobados, incluidos seed, permisos, correo JSON y base
+  aleatoria; cuatro shards secuenciales y limpieza completada.
+- Web con API local: 6/6 aprobados, con dos sesiones independientes,
+  invitacion, gastos privados/compartidos, balance y persistencia.
+- Despues de esas ejecuciones se cambio el arranque de Vite a
+  `src/integration/runFrontend.ts` sin volver a validarlo.

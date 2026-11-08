@@ -2,7 +2,7 @@ import { expect, test } from '../../src/fixtures'
 import { OnboardingPage } from '../../src/pages/OnboardingPage'
 
 test('TC23_web_intentarInvitarAUnaTerceraPersona', async ({
-  couple: _couple, page,
+  demoMember: _member, page,
 }) => {
   const onboarding = new OnboardingPage(page)
   await onboarding.visitInvitation()

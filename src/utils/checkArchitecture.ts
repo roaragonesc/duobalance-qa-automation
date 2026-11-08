@@ -65,7 +65,9 @@ for (const suite of ['web', 'api']) {
         report(path, 'los tests web contra la API real (fixtures/apiWeb) llevan _e2e_ en el titulo y los demas no')
       }
     }
-    if (/\btest\.skip\(/.test(source)) report(path, 'test.skip no debe esconder defectos; usa fixtures con motivo')
+    if (/\btest\.skip\(/.test(source) && !/^\/\/ Requiere API real[^\n]*\ntest\.skip\(true, '[^']+'\)$/m.test(source)) {
+      report(path, 'test.skip solo se permite para bloqueos de capacidad: comentario "// Requiere API real: ..." seguido de test.skip(true, \'motivo\')')
+    }
   }
   const sorted = [...suiteNumbers[suite]].sort((a, b) => a - b)
   sorted.forEach((value, index) => {

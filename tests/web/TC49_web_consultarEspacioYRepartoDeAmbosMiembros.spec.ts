@@ -2,6 +2,9 @@ import { expect, test } from '../../src/fixtures'
 import { BalancePage } from '../../src/pages/BalancePage'
 import { SpacePage } from '../../src/pages/SpacePage'
 
+// Requiere API real: necesita dos sesiones con datos compartidos y no se puede probar en modo mock.
+test.skip(true, 'Requiere API real: no se puede probar en modo mock (demo de GitHub Pages).')
+
 test('TC49_web_consultarEspacioYRepartoDeAmbosMiembros', async ({
   sharedExpense: _shared, page, partnerPage,
 }) => {

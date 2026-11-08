@@ -51,7 +51,7 @@ Documentos que este agente mantiene: `docs/COMPONENT_INVENTORY.md` (siempre al d
 - Este repositorio es el framework independiente. La configuracion es `playwright.config.ts`.
 - Define primero proposito y limites: que se prueba (UI, API, integracion), entornos, datos reutilizables o unicos por ejecucion, autenticacion y roles, preparacion/limpieza y evidencias de diagnostico. Empieza pequeno y anade una capa solo cuando haya una necesidad real de compartir comportamiento, aislar dependencias o simplificar los tests.
 - Conserva las suites funcionales en `tests/web/` y `tests/api/`, un caso por archivo. **El archivo se llama exactamente como el titulo del test**: `TC<n>_web_<nombre>.spec.ts`, `TC<n>_web_e2e_<nombre>.spec.ts` (web contra la API real, fixtures `apiWeb`) y `TC<n>_api_<nombre>.spec.ts`. La numeracion va de `TC01` en adelante, sin huecos ni repetidos, y es independiente en web y en api. Al anadir un test usa el siguiente numero libre de su suite; al borrar o insertar, renumera para mantener la secuencia.
-- **`tests/` contiene unicamente las carpetas `web/` y `api/`** (solo specs). Todo el codigo del framework vive en `src/`; las fuentes originales conservadas estan en `docs/preserved/`. Los specs importan desde `../../src/...`.
+- **`tests/` contiene unicamente las carpetas `web/` y `api/`** (solo specs). Todo el codigo del framework vive en `src/`. Los specs importan desde `../../src/...`.
 - Conserva IDs y pasos originales al migrar; no borres pruebas del repositorio de la aplicacion.
 
 ### Capas y propietarios
@@ -94,7 +94,7 @@ Documentos que este agente mantiene: `docs/COMPONENT_INVENTORY.md` (siempre al d
 
 ### Reglas automatizadas
 
-`npm run lint:arch` (`src/utils/checkArchitecture.ts`) falla ante: archivos de `src/` que no aparezcan en `docs/COMPONENT_INVENTORY.md`, carpetas o archivos en `tests/` distintos de `web/` y `api/`, titulos que no sigan `TC<n>_web_`, `TC<n>_web_e2e_` o `TC<n>_api_`, archivos que no se llamen igual que su titulo, numeracion que no vaya de TC01 sin huecos por suite, mas de un test por spec, locators o `goto` en specs web, `test.only`/`test.fixme`/`test.skip` en specs, `waitForTimeout`, `networkidle`, `force: true`, specs web que importan fixtures API, specs API que importan Pages o componentes, y Pages que dependen de fixtures. Ejecutalo junto al typecheck y mantenlo en CI. Anade reglas cuando aparezca una regresion de arquitectura nueva, sin crear abstracciones innecesarias.
+`npm run lint:arch` (`src/utils/checkArchitecture.ts`) falla ante: archivos de `src/` que no aparezcan en `docs/COMPONENT_INVENTORY.md`, carpetas o archivos en `tests/` distintos de `web/` y `api/`, titulos que no sigan `TC<n>_web_`, `TC<n>_web_e2e_` o `TC<n>_api_`, archivos que no se llamen igual que su titulo, numeracion que no vaya de TC01 sin huecos por suite, mas de un test por spec, locators o `goto` en specs web, `test.skip` solo se permite en specs como bloqueo de capacidad (comentario `// Requiere API real: ...` + `test.skip(true, 'motivo')`), `waitForTimeout`, `networkidle`, `force: true`, specs web que importan fixtures API, specs API que importan Pages o componentes, y Pages que dependen de fixtures. Ejecutalo junto al typecheck y mantenlo en CI. Anade reglas cuando aparezca una regresion de arquitectura nueva, sin crear abstracciones innecesarias.
 
 ## Entorno remoto y seguridad
 

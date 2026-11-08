@@ -2,6 +2,9 @@ import { expect, test } from '../../src/fixtures'
 import { OnboardingPage } from '../../src/pages/OnboardingPage'
 import { SpacePage } from '../../src/pages/SpacePage'
 
+// Requiere API real: necesita dos sesiones con datos compartidos y no se puede probar en modo mock.
+test.skip(true, 'Requiere API real: no se puede probar en modo mock (demo de GitHub Pages).')
+
 test('TC24_web_confirmarQueSoloPermanecenElPrimerUsuarioYElSegundoUsuario', async ({
   couple: _couple, page, partnerPage,
 }) => {

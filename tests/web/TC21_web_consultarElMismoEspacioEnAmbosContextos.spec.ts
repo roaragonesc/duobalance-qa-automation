@@ -1,6 +1,9 @@
 import { expect, test } from '../../src/fixtures'
 import { SpacePage } from '../../src/pages/SpacePage'
 
+// Requiere API real: necesita dos sesiones con datos compartidos y no se puede probar en modo mock.
+test.skip(true, 'Requiere API real: no se puede probar en modo mock (demo de GitHub Pages).')
+
 test('TC21_web_consultarElMismoEspacioEnAmbosContextos', async ({
   couple: _couple, page, partnerPage,
 }) => {

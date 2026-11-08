@@ -5,6 +5,9 @@ import { JoinSpacePage } from '../../src/pages/JoinSpacePage'
 import { RegisterPage } from '../../src/pages/RegisterPage'
 import { DashboardPage } from '../../src/pages/DashboardPage'
 
+// Requiere API real: necesita dos sesiones con datos compartidos y no se puede probar en modo mock.
+test.skip(true, 'Requiere API real: no se puede probar en modo mock (demo de GitHub Pages).')
+
 test('TC43_web_abrirInvitacionEnLaSegundaSesionYRegistrarAlSegundoUsuario', async ({
   spaceOwner: _owner, partnerPage, onboardingPage,
 }) => {

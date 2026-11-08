@@ -2,6 +2,9 @@ import { expect, test } from '../../src/fixtures'
 import { BalancePage } from '../../src/pages/BalancePage'
 import { ExpensesPage } from '../../src/pages/ExpensesPage'
 
+// Requiere API real: necesita dos sesiones con datos compartidos y no se puede probar en modo mock.
+test.skip(true, 'Requiere API real: no se puede probar en modo mock (demo de GitHub Pages).')
+
 test('TC39_web_persistirImporteYSaldoActualizado', async ({
   sharedExpense: _shared, page, partnerPage, expensesPage,
 }) => {

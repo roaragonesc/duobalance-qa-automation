@@ -3,6 +3,9 @@ import { DashboardPage } from '../../src/pages/DashboardPage'
 import { OnboardingPage } from '../../src/pages/OnboardingPage'
 import { SpacePage } from '../../src/pages/SpacePage'
 
+// Requiere API real: necesita dos sesiones con datos compartidos y no se puede probar en modo mock.
+test.skip(true, 'Requiere API real: no se puede probar en modo mock (demo de GitHub Pages).')
+
 test('TC44_web_ambosConservanElMismoEspacioYNoPuedenCrearOtro', async ({
   couple: _couple, page, partnerPage,
 }) => {
