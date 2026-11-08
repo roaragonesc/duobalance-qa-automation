@@ -1,4 +1,4 @@
-import type { Locator, Page } from '@playwright/test'
+import { expect, type Locator, type Page } from '@playwright/test'
 import { BasePage } from './BasePage'
 
 export class ForgotPasswordPage extends BasePage {
@@ -19,9 +19,13 @@ export class ForgotPasswordPage extends BasePage {
     return this.page.getByRole('button', { name: `Abrir recuperación de ${email}` })
   }
 
+  // La demo puede re-renderizar el formulario al resolver la sesion: se reintenta hasta que se muestra el aviso.
   async requestLink(email: string) {
-    await this.emailField.fill(email)
-    await this.sendLinkButton.click()
+    await expect(async () => {
+      await this.emailField.fill(email)
+      await this.sendLinkButton.click()
+      await expect(this.status).toBeVisible({ timeout: 3_000 })
+    }).toPass({ timeout: 20_000 })
   }
 
   async openMockRecoveryLink(email: string) {

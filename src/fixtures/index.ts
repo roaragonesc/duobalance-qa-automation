@@ -87,7 +87,6 @@ export const test = base.extend<E2EFixtures>({
   recoveryRequested: async ({ anaAccount: _ana, loginPage, forgotPasswordPage }, provideFixtures) => {
     await loginPage.openPasswordRecovery()
     await forgotPasswordPage.requestLink(journeyUsers.a.email)
-    await forgotPasswordPage.status.waitFor()
     await provideFixtures()
   },
   couple: async ({ page, partnerPage, resetMockData: _reset }, provideFixtures) => {
