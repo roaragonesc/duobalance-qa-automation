@@ -42,7 +42,7 @@ Flujo de dependencias permitido: `tests (specs) -> src/fixtures -> src/pages -> 
 ## 4. Como generar tests
 
 1. Importa `test` y `expect` desde la fixture adecuada con ruta relativa (`../../src/fixtures`, `../../src/fixtures/pagesDemo`).
-2. Un test por archivo. Titulo `TC<n>_web_<nombre>`; archivo `<titulo>.spec.ts`; numeracion sin huecos.
+2. Un test por archivo. Titulo `TC<n>_web_<nombre>`; archivo `<titulo>.spec.ts`; numeracion sin huecos. Todo test se divide en pasos numerados `test.step('1. Sujeto + accion', ...)`: un paso = una accion con sus `expect` dentro; la numeracion es consecutiva desde 1. Los specs web no llevan logica (`for`, `while`, `if`, `switch`, `try`, ternarios, `Promise.all`, `.forEach`): con dos personas, cada una abre primero su perfil y comprueba que es ella (`profilePage.nameHeading` + `emailText`), actua Ana con todo lo suyo y despues Luis, repitiendo el codigo.
 3. Pide las Pages y la preparacion por fixture. Si varios tests repiten una preparacion, crea una fixture en `src/fixtures/index.ts`.
 4. Usa solo metodos y localizadores publicos de las Pages; las expectativas van en el spec.
 5. Usa `src/data/` para entradas; nunca credenciales reales ni URLs fijas.
@@ -53,10 +53,12 @@ Plantilla:
 ```ts
 import { expect, test } from '../../src/fixtures'
 
-test('TC23_web_crearUnGastoIndividualDesdeLaPrimeraCuenta', async ({ demoMember: _member, expensesPage }) => {
-  await expensesPage.visit()
-  await expensesPage.addExpense({ description: 'Peluquería E2E', amount: '35,00', individual: true })
-  await expect(expensesPage.row('Peluquería E2E')).toContainText('Individual')
+test('TC13_web_recorridoDeGastoIndividualYPrivacidadEnLaDemo', async ({ demoMember: _member, expensesPage }) => {
+  await test.step('1. El usuario añade un gasto individual', async () => {
+    await expensesPage.visit()
+    await expensesPage.addExpense({ description: 'Peluquería E2E', amount: '35,00', individual: true })
+    await expect(expensesPage.row('Peluquería E2E')).toContainText('Individual')
+  })
 })
 ```
 
@@ -95,7 +97,7 @@ test('TC23_web_crearUnGastoIndividualDesdeLaPrimeraCuenta', async ({ demoMember:
 | Entorno | `src/config/environment.ts` |
 | Datos | `src/data/` |
 | Reglas automaticas | `src/utils/checkArchitecture.ts`, `eslint.config.mjs`, `.prettierrc.json` |
-| Test de ejemplo | `tests/web/TC23_web_crearUnGastoIndividualDesdeLaPrimeraCuenta.spec.ts` |
+| Test de ejemplo | `tests/web/TC13_web_recorridoDeGastoIndividualYPrivacidadEnLaDemo.spec.ts` |
 
 ---
 

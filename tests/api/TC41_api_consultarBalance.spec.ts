@@ -4,7 +4,7 @@ import { test, expect, today } from '../../src/fixtures/endpointApi'
 test.skip(true, 'Requiere API real: no se puede probar en modo mock (demo de GitHub Pages).')
 
 test('TC41_api_consultarBalance', async ({ household, expense: _expense }) => {
-  await test.step('TC99_getSpacesIdBalance', async () => {
+  await test.step('1. El usuario A consulta el balance del espacio', async () => {
     const response = await household.a.api.get(`spaces/${household.spaceId}/balance`, {
       params: { month: today().slice(0, 7) },
     })

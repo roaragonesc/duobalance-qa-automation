@@ -4,7 +4,7 @@ import { test, expect } from '../../src/fixtures/endpointApi'
 test.skip(true, 'Requiere API real: no se puede probar en modo mock (demo de GitHub Pages).')
 
 test('TC17_api_consultarEspacio', async ({ household }) => {
-  await test.step('TC75_getSpacesId', async () => {
+  await test.step('1. El usuario B consulta el espacio y comprueba los miembros', async () => {
     const response = await household.b.api.get(`spaces/${household.spaceId}`)
     expect(response.status()).toBe(200)
     expect((await response.json()).space).toMatchObject({

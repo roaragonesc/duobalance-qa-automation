@@ -4,7 +4,7 @@ import { test, expect } from '../../src/fixtures/endpointApi'
 test.skip(true, 'Requiere API real: no se puede probar en modo mock (demo de GitHub Pages).')
 
 test('TC01_api_consultarSalud', async ({ request }) => {
-  await test.step('TC59_getHealth', async () => {
+  await test.step('1. El cliente consulta el estado de salud del servicio', async () => {
     const response = await request.get('health')
     expect(response.status()).toBe(200)
     expect(await response.json()).toEqual({ status: 'ok' })

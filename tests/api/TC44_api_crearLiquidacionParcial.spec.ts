@@ -4,7 +4,7 @@ import { test, expect, send, today } from '../../src/fixtures/endpointApi'
 test.skip(true, 'Requiere API real: no se puede probar en modo mock (demo de GitHub Pages).')
 
 test('TC44_api_crearLiquidacionParcial', async ({ household, expense: _expense }) => {
-  await test.step('TC102_postSpacesIdSettlements', async () => {
+  await test.step('1. El usuario B registra una liquidación parcial', async () => {
     const response = await send(household.b, 'post', `spaces/${household.spaceId}/settlements`, {
       date: today(),
       amountCents: 1000,
@@ -16,6 +16,8 @@ test('TC44_api_crearLiquidacionParcial', async ({ household, expense: _expense }
       fromUserId: household.b.id,
       toUserId: household.a.id,
     })
+  })
+  await test.step('2. El usuario A consulta el balance y comprueba la deuda acumulada restante', async () => {
     const balance = await household.a.api.get(`spaces/${household.spaceId}/balance`, {
       params: { month: today().slice(0, 7) },
     })

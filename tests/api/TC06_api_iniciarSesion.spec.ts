@@ -4,7 +4,7 @@ import { test, expect } from '../../src/fixtures/endpointApi'
 test.skip(true, 'Requiere API real: no se puede probar en modo mock (demo de GitHub Pages).')
 
 test('TC06_api_iniciarSesion', async ({ request, account, confirmedAccount: _confirmed }) => {
-  await test.step('TC64_postAuthLogin', async () => {
+  await test.step('1. El cliente inicia sesión con una cuenta confirmada', async () => {
     const response = await request.post('auth/login', { data: { email: account.email, password: account.password } })
     expect(response.status()).toBe(200)
     expect(response.headers()['set-cookie']).toContain('HttpOnly')

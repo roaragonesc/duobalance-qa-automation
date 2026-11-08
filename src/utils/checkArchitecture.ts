@@ -53,6 +53,14 @@ for (const suite of ['web', 'api'] as const) {
       report(path, `el archivo debe llamarse igual que el titulo: ${title}.spec.ts`)
     numbers.push(Number(title.match(/^TC(\d+)_/)?.[1]))
 
+    const stepNumbers = [...source.matchAll(/test\.step\(\s*'(\d+)\. [^']+'/g)].map((match) => Number(match[1]))
+    const stepCalls = source.match(/test\.step\(/g)?.length ?? 0
+    if (stepNumbers.length === 0 || stepNumbers.length !== stepCalls) {
+      report(path, "cada paso debe llamarse test.step('N. Sujeto + accion', ...) y el test debe tener al menos uno")
+    } else if (stepNumbers.some((value, index) => value !== index + 1)) {
+      report(path, 'los pasos deben numerarse de forma consecutiva desde 1')
+    }
+
     if (/\btest\.skip\(/.test(source) && !/^\/\/ Requiere API real[^\n]*\ntest\.skip\(true, '[^']+'\)$/m.test(source)) {
       report(
         path,
@@ -61,6 +69,12 @@ for (const suite of ['web', 'api'] as const) {
     }
     if (suite === 'web' && /\.(getBy\w+|locator)\(|\.goto\(/.test(source)) {
       report(path, 'los specs web no contienen locators ni navegacion: usa Page Objects')
+    }
+    if (
+      suite === 'web' &&
+      /\b(for|while|if|switch)\s*\(|\btry\s*\{|Promise\.all|\.forEach\(|\.map\(|\?[^.?\n][^\n]*:/.test(source)
+    ) {
+      report(path, 'los specs web no llevan logica (bucles, if, try, ternarios, Promise.all): una accion por paso')
     }
     if (suite === 'api' && /src\/(pages|components)\//.test(source)) {
       report(path, 'los specs API no importan Pages ni componentes UI')

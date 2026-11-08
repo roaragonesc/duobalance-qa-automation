@@ -88,7 +88,8 @@ cuenta el escenario y sus expectativas; nunca contiene locators.
 - `npm run lint`: ESLint con `typescript-eslint` y `eslint-plugin-playwright` (sin variables sin usar, aserciones
   presentes, sin esperas fijas...).
 - `npm run format:check`: Prettier (sin punto y coma, comillas simples, 120 columnas).
-- `npm run lint:arch`: `tests/` solo con `web/` y `api/`; un test por spec; archivo con el mismo nombre
+- `npm run lint:arch`: `tests/` solo con `web/` y `api/`; un test por spec; todo test con pasos `test.step('N. ...')`; specs web sin logica
+  numerados desde 1; archivo con el mismo nombre
   que el titulo; formato `TC<n>_web_<nombre>` o `TC<n>_api_<nombre>` con numeracion desde TC01 sin huecos por suite; sin locators ni `goto` en specs;
   las Pages no importan fixtures; sin `waitForTimeout`, `networkidle`, `force: true`, `test.only` ni `test.fixme`;
   `test.skip` solo como bloqueo de capacidad con comentario `// Requiere API real: ...`; todo archivo de `src/`
@@ -129,8 +130,14 @@ cuenta el escenario y sus expectativas; nunca contiene locators.
 
 - Un escenario por test, un test por archivo, archivo con el mismo nombre que el titulo y numeracion `TC01...` sin
   saltos, independiente por suite. Al borrar o insertar se renumera.
-- Nombre que comunica el proposito. `test.step` solo para pasos de negocio de un mismo recorrido (por ejemplo TC67,
-  Rocio y Pablo en un unico navegador con el panel mock), nunca para agrupar escenarios distintos.
+- Nombre que comunica el proposito. Todo test se divide en pasos numerados (`test.step('1. El usuario anade un gasto', ...)`):
+  cada paso es una accion con sus `expect` dentro y el nombre sigue `N. Sujeto + accion`, con numeracion consecutiva desde 1.
+  Los recorridos completos (por ejemplo TC15, Rocio y Pablo en un unico navegador con el panel mock) se prefieren a varios
+  tests que repiten los mismos pasos iniciales, pero nunca se agrupan escenarios de negocio distintos.
+- Sin logica en los specs (ni `for`, `while`, `if`, `switch`, `try`, ternarios, `Promise.all` o `.forEach`): los
+  specs se leen de arriba abajo y la logica va a Pages o fixtures. En tests con dos personas, cada una empieza con un
+  paso que abre su perfil y comprueba que es ella (`ProfilePage.nameHeading` y `emailText`); primero actua Ana con todo
+  lo suyo y despues Luis (o Rocio y Pablo alternando con el panel mock), repitiendo el codigo en vez de usar bucles.
 - Nunca se elimina ni se debilita una asercion para hacer pasar un test.
 - Los tests no se borran porque no se puedan ejecutar: se conservan con `// Requiere API real: ...` y `test.skip`.
   Un omitido nunca cuenta como aprobado y siempre lleva motivo.
@@ -192,11 +199,11 @@ recursos del origen configurado y bloquean fetch/XHR, Supabase y rutas API/mock.
 - Cada prueba tiene almacenamiento independiente y reinicia sus datos por la UI. No se manipula `localStorage` desde
   los tests. Solo se usan cuentas ficticias.
 
-La suite web tiene **67 tests** (`tests/web/TC01...TC67`) y la de API **60** (`tests/api/TC01...TC60`):
+La suite web tiene **41 tests** (`tests/web/TC01...TC41`) y la de API **60** (`tests/api/TC01...TC60`):
 
 | Estado                | Tests | Contenido                                                                                                                              |
 | --------------------- | ----- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| Se ejecutan           | 41    | Rutas protegidas, login, registro, validaciones, recuperacion, onboarding, panel mock, demo movil, gastos y balances exactos sobre el seed de demo |
+| Se ejecutan           | 15    | Recorridos largos con `test.step`: acceso protegido, login, registro, recuperacion, onboarding hasta la invitacion, gastos y balances exactos sobre el seed de demo, panel mock, demo movil y Rocio con Pablo |
 | Omitidos con motivo (web) | 26 | Escenarios de dos cuentas: requieren API real y datos compartidos entre sesiones; no se pueden probar en modo mock |
 | Omitidos con motivo (API) | 60 | Suite REST completa: necesita un backend aislado, que queda fuera de este repositorio |
 

@@ -17,4 +17,13 @@ export class ProfilePage extends BasePage {
     await this.profileLink.click()
     await this.signOutButton.click()
   }
+
+  // Nombre y correo mostrados en el perfil: sirven para comprobar con que identidad se esta operando.
+  nameHeading(name: string) {
+    return this.page.getByRole('heading', { name, exact: true })
+  }
+
+  emailText(email: string) {
+    return this.page.getByText(email, { exact: true })
+  }
 }

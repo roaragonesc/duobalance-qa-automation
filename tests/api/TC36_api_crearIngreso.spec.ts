@@ -4,7 +4,7 @@ import { test, expect, send, today } from '../../src/fixtures/endpointApi'
 test.skip(true, 'Requiere API real: no se puede probar en modo mock (demo de GitHub Pages).')
 
 test('TC36_api_crearIngreso', async ({ household }) => {
-  await test.step('TC94_postIncomes', async () => {
+  await test.step('1. El usuario A crea un ingreso', async () => {
     const response = await send(household.a, 'post', 'incomes', {
       spaceId: household.spaceId,
       description: 'Nómina',

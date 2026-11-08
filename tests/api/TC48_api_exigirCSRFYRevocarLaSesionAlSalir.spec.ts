@@ -4,10 +4,19 @@ import { test, expect } from '../../src/fixtures/endpointApi'
 test.skip(true, 'Requiere API real: no se puede probar en modo mock (demo de GitHub Pages).')
 
 test('TC48_api_exigirCSRFYRevocarLaSesionAlSalir', async ({ request, authenticatedAccount }) => {
-  const denied = await request.post('auth/logout', { data: {} })
-  expect(denied.status()).toBe(403)
-  const logout = await request.post('auth/logout', { data: {}, headers: { 'X-CSRF-Token': authenticatedAccount.csrf } })
-  expect(logout.status()).toBe(204)
-  const me = await request.get('auth/me')
-  expect(me.status()).toBe(401)
+  await test.step('1. El cliente intenta cerrar la sesión sin token CSRF y es rechazado', async () => {
+    const denied = await request.post('auth/logout', { data: {} })
+    expect(denied.status()).toBe(403)
+  })
+  await test.step('2. El cliente cierra la sesión con su token CSRF', async () => {
+    const logout = await request.post('auth/logout', {
+      data: {},
+      headers: { 'X-CSRF-Token': authenticatedAccount.csrf },
+    })
+    expect(logout.status()).toBe(204)
+  })
+  await test.step('3. El cliente comprueba que la sesión ha sido revocada', async () => {
+    const me = await request.get('auth/me')
+    expect(me.status()).toBe(401)
+  })
 })

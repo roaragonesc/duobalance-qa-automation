@@ -29,6 +29,6 @@ export class ForgotPasswordPage extends BasePage {
   }
 
   async openMockRecoveryLink(email: string) {
-    await this.mockRecoveryLink(email).click()
+    await Promise.all([this.page.waitForEvent('domcontentloaded'), this.mockRecoveryLink(email).click()])
   }
 }

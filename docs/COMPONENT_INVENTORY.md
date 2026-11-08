@@ -20,7 +20,7 @@ Una Page por pantalla de la aplicacion. Locators como campos `readonly` del cons
 | `IncomesPage.ts` | `/incomes` | `addIncome`, `row`, `editLink`, `deleteButton`, `ownerFilter`, `shareRegion` |
 | `BalancePage.ts` | `/balance` | `debtSummary`, `monthSummary`, `ownContribution`, `monthBalance`, `noBalanceHeading` |
 | `SpacePage.ts` | `/space` | `heading`, `summary`, `members`, `memberItems`, `member` |
-| `ProfilePage.ts` | `/profile` | `signOut` |
+| `ProfilePage.ts` | `/profile` | `signOut`, `nameHeading`, `emailText` (comprobar la identidad activa) |
 
 ## Componentes / Blocks (`src/components/`)
 
@@ -79,7 +79,7 @@ Una Page por pantalla de la aplicacion. Locators como campos `readonly` del cons
 
 | Suite | Archivos | Numeracion | Notas |
 | --- | --- | --- | --- |
-| `tests/web/` | `TC<n>_web_<nombre>.spec.ts` | TC01-TC67 | 41 se ejecutan; 26 de dos cuentas se omiten con `// Requiere API real` |
+| `tests/web/` | `TC<n>_web_<nombre>.spec.ts` | TC01-TC41 | 15 recorridos se ejecutan (TC01-TC15); 26 de dos cuentas (TC16-TC41) se omiten con `// Requiere API real` |
 | `tests/api/` | `TC<n>_api_<nombre>.spec.ts` | TC01-TC60 | Los 60 se omiten con `// Requiere API real` (necesitan un backend REST aislado) |
 
-Ejemplo de referencia: `tests/web/TC23_web_crearUnGastoIndividualDesdeLaPrimeraCuenta.spec.ts`. Recorrido con varios pasos y dos identidades demo en un solo navegador: `tests/web/TC67_web_recorridoDeGastosCompartidosEIndividualesEntreRocioYPablo.spec.ts`.
+Ejemplos de referencia (recorridos con pasos `test.step('N. ...')` numerados): `tests/web/TC13_web_recorridoDeGastoIndividualYPrivacidadEnLaDemo.spec.ts` y, con dos identidades demo en un solo navegador, `tests/web/TC15_web_recorridoDeGastosCompartidosEIndividualesEntreRocioYPablo.spec.ts`.

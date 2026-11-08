@@ -4,7 +4,7 @@ import { test, expect } from '../../src/fixtures/endpointApi'
 test.skip(true, 'Requiere API real: no se puede probar en modo mock (demo de GitHub Pages).')
 
 test('TC22_api_listarInvitaciones', async ({ actors, pendingInvitation }) => {
-  await test.step('TC80_getInvitations', async () => {
+  await test.step('1. El usuario B lista sus invitaciones y comprueba la pendiente', async () => {
     const response = await actors.b.api.get('invitations')
     expect(response.status()).toBe(200)
     expect((await response.json()).invitations).toEqual([

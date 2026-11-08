@@ -4,7 +4,7 @@ import { test, expect } from '../../src/fixtures/endpointApi'
 test.skip(true, 'Requiere API real: no se puede probar en modo mock (demo de GitHub Pages).')
 
 test('TC08_api_consultarSesion', async ({ request, account, authenticatedAccount: _session }) => {
-  await test.step('TC66_getAuthMe', async () => {
+  await test.step('1. El cliente consulta la sesión actual y comprueba los datos del usuario', async () => {
     const response = await request.get('auth/me')
     expect(response.status()).toBe(200)
     const body = await response.json()

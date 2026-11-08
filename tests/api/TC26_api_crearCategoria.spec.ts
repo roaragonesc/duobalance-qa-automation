@@ -4,7 +4,7 @@ import { test, expect, send } from '../../src/fixtures/endpointApi'
 test.skip(true, 'Requiere API real: no se puede probar en modo mock (demo de GitHub Pages).')
 
 test('TC26_api_crearCategoria', async ({ actors }) => {
-  await test.step('TC84_postCategories', async () => {
+  await test.step('1. El usuario A crea una categoría personal nueva', async () => {
     const response = await send(actors.a, 'post', 'categories', {
       name: 'Personal nueva',
       icon: 'food',

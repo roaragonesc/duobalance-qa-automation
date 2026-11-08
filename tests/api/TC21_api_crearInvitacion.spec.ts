@@ -4,10 +4,13 @@ import { test, expect, send } from '../../src/fixtures/endpointApi'
 test.skip(true, 'Requiere API real: no se puede probar en modo mock (demo de GitHub Pages).')
 
 test('TC21_api_crearInvitacion', async ({ actors }) => {
-  const created = await send(actors.a, 'post', 'spaces', { name: 'Para invitar', splitMethod: 'equal' })
-  expect(created.status()).toBe(201)
-  const spaceId = (await created.json()).space._id
-  await test.step('TC79_postSpacesIdInvitations', async () => {
+  let spaceId = ''
+  await test.step('1. El usuario A crea un espacio para invitar', async () => {
+    const created = await send(actors.a, 'post', 'spaces', { name: 'Para invitar', splitMethod: 'equal' })
+    expect(created.status()).toBe(201)
+    spaceId = (await created.json()).space._id
+  })
+  await test.step('2. El usuario A invita al usuario B por correo', async () => {
     const response = await send(actors.a, 'post', `spaces/${spaceId}/invitations`, { email: actors.b.email })
     expect(response.status()).toBe(201)
     const body = await response.json()
