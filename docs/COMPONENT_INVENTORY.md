@@ -1,10 +1,14 @@
 # Inventario de componentes
 
-Indice de todo lo que ofrece el framework. Los agentes deben leerlo antes de generar o cambiar codigo y actualizarlo cuando anadan, borren o renombren una Page, un componente, una fixture, un dato o una utilidad. `npm run lint:arch` falla si un archivo de `src/` no aparece aqui.
+Referencia de las piezas disponibles en DuoBalance QA Automation. Consulta este inventario antes de generar o modificar codigo.
+Registra las altas, bajas y cambios de nombre de Pages, componentes, fixtures, datos y utilidades.
+`npm run lint:arch` detecta los archivos de `src/` que no esten incluidos.
 
 ## Pages (`src/pages/`)
 
-Una Page por pantalla de la aplicacion. Locators como campos `readonly` del constructor; operaciones con intencion de usuario; sin expectativas de negocio (solo `expectOpen()`).
+Cada pantalla de DuoBalance tiene su propia Page. El constructor asigna los locators a campos `readonly`,
+y sus metodos exponen acciones de usuario. Las expectativas de negocio no pertenecen a la Page;
+la comprobacion admitida es `expectOpen()`.
 
 | Archivo | Pantalla (ruta) | API publica relevante |
 | --- | --- | --- |
@@ -41,10 +45,11 @@ Una Page por pantalla de la aplicacion. Locators como campos `readonly` del cons
 
 ## Datos (`src/data/`)
 
-Todos los specs consumen un JSON propio en `testData/web/` o `testData/api/`, con basename igual al titulo/spec
-y objetos `setup`, `inputs`, `expected`. La option tipada `caseData` de las fixtures web/API recibe `data.setup`;
-preparacion y recorrido comparten datos. Los catalogos TypeScript se conservan por compatibilidad, no se importan
-como fuente en los specs. Renombrar un caso requiere renombrar JSON y actualizar import e inventario.
+Cada spec utiliza su JSON en `testData/web/` o `testData/api/`, con el mismo basename que el titulo/spec.
+El archivo contiene `setup`, `inputs` y `expected`. Las fixtures web/API reciben `data.setup` mediante la
+option tipada `caseData`, de modo que preparacion y recorrido utilizan la misma fuente.
+Los catalogos TypeScript permanecen por compatibilidad y no se importan como fuente de datos de los specs.
+Un cambio de nombre del caso exige el mismo cambio en su JSON, junto con el import y este inventario.
 
 | Archivo | Contenido |
 | --- | --- |
@@ -88,13 +93,15 @@ como fuente en los specs. Renombrar un caso requiere renombrar JSON y actualizar
 | `tests/web/` | `TC<n>_web_<nombre>.spec.ts` | TC01-TC41 | 15 recorridos se ejecutan (TC01-TC15); 26 de dos cuentas (TC16-TC41) se omiten con `// Requiere API real` |
 | `tests/api/` | `TC<n>_api_<nombre>.spec.ts` | TC01-TC60 | Los 60 se omiten con `// Requiere API real` (necesitan un backend REST aislado) |
 
-Ejemplos de referencia (recorridos con pasos `test.step('N. ...')` numerados): `tests/web/TC13_web_recorridoDeGastoIndividualYPrivacidadEnLaDemo.spec.ts` y, con dos identidades demo en un solo navegador, `tests/web/TC15_web_recorridoDeGastosCompartidosEIndividualesEntreRocioYPablo.spec.ts`.
+Para consultar la organizacion en pasos `test.step('N. ...')` numerados, utiliza `tests/web/TC13_web_recorridoDeGastoIndividualYPrivacidadEnLaDemo.spec.ts`.
+El recorrido `tests/web/TC15_web_recorridoDeGastosCompartidosEIndividualesEntreRocioYPablo.spec.ts` muestra dos identidades demo en un mismo navegador.
 
 ## JSON propios por caso
 
-41 JSON web y 60 API. Todos se importan y consumen; se conservan aserciones, pasos, identidades y omisiones.
-`lint:arch` comprueba con AST el par, consumo, option `caseData`, numeracion y datos sin hardcode;
-detecta JSON huerfanos y exige inventariar cada archivo de datos.
+La relacion siguiente contiene los 41 JSON web y los 60 API. Cada uno tiene import y consumo en su caso,
+sin cambios en las aserciones, pasos, identidades u omisiones.
+El AST de `lint:arch` comprueba correspondencia, consumo, option `caseData`, numeracion y ausencia de datos
+hardcodeados. Tambien detecta JSON sin spec y exige que todos los archivos de datos figuren en el inventario.
 
 <!-- BEGIN TEST DATA INVENTORY -->
 ### web

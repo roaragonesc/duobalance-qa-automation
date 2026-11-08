@@ -69,8 +69,8 @@ tests/
 docs/           guia de agentes e inventario de componentes
 ```
 
-Flujo de dependencias permitido: `spec -> fixtures -> pages -> components / utils / config / data`. Un spec solo
-cuenta el escenario y sus expectativas; nunca contiene locators.
+Las dependencias siguen `spec -> fixtures -> pages -> components / utils / config / data`.
+El spec describe el escenario y decide sus resultados esperados, sin definir locators.
 
 ### Decisiones y motivos
 
@@ -106,32 +106,33 @@ cuenta el escenario y sus expectativas; nunca contiene locators.
 
 **Organizacion**
 
-- Define primero el proposito y los limites: que se prueba (UI, API), en que entornos, con que datos y que evidencias
-  necesita quien diagnostica un fallo. Empieza pequeno y anade una capa solo cuando haya una necesidad real.
-- Separa responsabilidades: el spec cuenta el escenario y sus expectativas; la Page ofrece operaciones de una
-  pantalla; el Block encapsula una seccion reutilizable; la fixture prepara dependencias; los datos describen entradas.
-- Un solo propietario por locator y comportamiento. Selectores iguales no demuestran el mismo contrato: verifica
-  propietario, comportamiento y consumidores antes de reutilizar.
-- Composicion antes que herencia. `BasePage` solo contiene lo realmente comun; nada especifico de una pantalla.
-- `tests/` solo contiene suites (`web/` y `api/`); todo el codigo del framework vive en `src/`.
+- Delimita la cobertura UI/API, el entorno, los datos y la evidencia necesaria para investigar un fallo.
+  Parte de una solucion pequena y anade capas solo cuando resuelvan una necesidad real.
+- En DuoBalance, el spec declara escenario y expectativas; la Page opera una pantalla; el Block agrupa una
+  seccion reutilizable; la fixture proporciona dependencias; los datos contienen las entradas.
+- Cada locator y comportamiento tiene un propietario. Antes de reutilizarlo, verifica ese propietario, su
+  comportamiento y sus consumidores. Un selector coincidente no demuestra que el contrato sea el mismo.
+- Utiliza composicion antes que herencia. `BasePage` queda limitado a lo comun, sin operaciones de una pantalla.
+- Aloja el framework en `src/` y reserva `tests/` a las suites `web/` y `api/`.
 
 **Page Objects**
 
-- Una Page por pantalla de la aplicacion; una pestana nueva implica una Page nueva.
-- Los metodos expresan intencion de usuario (`addExpense`, `signOut`), no mecanica (`clickBlueButton`).
-- Locators estables como campos `readonly` del constructor; los dinamicos (filas, enlaces por texto) son metodos con
-  parametros. Las filas y tarjetas se identifican por su contenido, nunca por posicion.
-- Prioridad de locators: `getByRole`, `getByLabel`, `getByPlaceholder`, texto visible estable y, si se acuerda con
-  desarrollo, `data-testid`. Sin XPath, CSS fragil ni indices DOM.
-- Las expectativas de negocio viven en el spec; la Page solo ofrece `expectOpen()` como comprobacion de navegacion.
-- Los specs no contienen locators, `goto` ni funciones auxiliares; la logica de UI va en la Page o el componente.
+- Cada pantalla o pestana necesita su propia Page.
+- Los metodos describen lo que quiere hacer el usuario (`addExpense`, `signOut`), no el control que pulsa (`clickBlueButton`).
+- Asigna los locators estables a campos `readonly` en el constructor. Ofrece filas y enlaces por texto mediante
+  metodos parametrizados; identifica filas y tarjetas por contenido, nunca por posicion.
+- Selecciona por `getByRole`, `getByLabel`, `getByPlaceholder`, texto visible estable y despues `data-testid`
+  acordado con desarrollo. Evita XPath, CSS fragil e indices DOM.
+- La Page solo comprueba su navegacion con `expectOpen()`. Los resultados de negocio se comprueban en el spec.
+- La interaccion de UI se implementa en Pages o componentes, no en locators, `goto` o funciones auxiliares del spec.
 
 **Fixtures y datos**
 
-- Cada test recibe lo que necesita por fixture y arranca aislado: funciona en cualquier orden y en paralelo.
-- La preparacion repetida se extrae a una fixture encadenada y explicita; no oculta pasos criticos del escenario.
-- Datos y resultados esperados de cada caso en su JSON propio (ver contrato abajo). Nunca credenciales, tokens ni URLs fijas en specs o Pages; los secretos
-  van en el mecanismo seguro de CI. La configuracion por entorno vive en un solo sitio y se valida al arrancar.
+- Entrega las dependencias por fixture y aisla cada test para que funcione en cualquier orden y en paralelo.
+- Agrupa el setup repetido en una fixture con dependencias explicitas. No ocultes acciones criticas del escenario.
+- Cada caso obtiene datos y resultados esperados de su JSON, segun el contrato siguiente.
+  No incrustes credenciales, tokens ni URLs fijas en specs o Pages. Usa el mecanismo seguro de CI para secretos;
+  centraliza la configuracion de entorno y validala al iniciar.
 
 ### Datos JSON por test
 
@@ -143,83 +144,84 @@ tests/web/TC13_web_recorridoDeGastoIndividualYPrivacidadEnLaDemo.spec.ts
 src/data/testData/web/TC13_web_recorridoDeGastoIndividualYPrivacidadEnLaDemo.json
 ```
 
-Cada JSON contiene tres objetos:
+Los tres objetos del JSON cumplen responsabilidades distintas:
 
-- `setup`: usuarios, gastos y espacios usados por la preparacion y/o por el recorrido. La option tipada
-  `caseData` recibe `data.setup` mediante `test.use`; las fixtures leen esa misma fuente, sin sembrar nombres
-  o importes de otro catalogo. En API incluye tambien los status HTTP esperados durante el setup.
-- `inputs`: entradas del escenario (contrasenas ficticias, importes nuevos, conceptos, categorias, tipos,
-  destinatarios, parametros y opciones del dispositivo cuando aplican).
-- `expected`: mensajes, importes/saldos, cantidades, status HTTP, valores de respuesta y patrones esperados.
-  Se conservan todas las aserciones; un cambio de datos no justifica debilitar un resultado esperado.
+- `setup` proporciona usuarios, gastos y espacios a la preparacion y/o al recorrido.
+  `test.use` entrega `data.setup` a la option tipada `caseData`; las fixtures no deben preparar nombres o
+  importes de otro catalogo. Para API, tambien contiene los status HTTP esperados al preparar el caso.
+- `inputs` recoge las entradas de las acciones: contrasenas ficticias, importes nuevos, conceptos, categorias,
+  tipos, destinatarios, parametros y, cuando corresponda, opciones del dispositivo.
+- `expected` define mensajes, importes/saldos, cantidades, status HTTP, valores de respuesta y patrones.
+  Conserva todas las aserciones: modificar datos no permite hacer menos exigente el resultado esperado.
 
-Los specs importan el JSON por defecto y llaman a `defineCaseData` de `src/utils/caseData.ts`:
-`resolveJsonModule` conserva su forma inferida y el guard valida/narrowea unions (`demoUser`, `expenseType`,
-`section`, `splitMethod`, `kind`). No se usan `as any` ni dobles casts `as unknown`. `WebSetup` y `ApiSetup`
-tipan la option de fixtures; una precondicion faltante falla con su ruta JSON mediante `requiredData`.
-Los catalogos `.ts` existentes se conservan como referencia/compatibilidad del framework; no son la fuente
-de datos de los specs migrados.
+Carga el import por defecto del JSON con `defineCaseData`, definido en `src/utils/caseData.ts`.
+`resolveJsonModule` mantiene la forma inferida; el guard comprueba y acota las unions `demoUser`, `expenseType`,
+`section`, `splitMethod` y `kind`, sin `as any` ni dobles casts `as unknown`.
+`WebSetup` y `ApiSetup` tipan la option de fixtures. `requiredData` informa con la ruta JSON cuando falta una
+precondicion. Los catalogos `.ts` se mantienen por referencia y compatibilidad, pero no suministran los datos
+de los specs migrados.
 
-**Excepciones deliberadas, no datos de negocio hardcodeados:**
+**Valores tecnicos y dinamicos que no se trasladan como datos fijos:**
 
-- Titulos, pasos numerados y motivos de `skip` siguen literales.
-- Rutas relativas/hash y endpoints, claves de respuesta/cabeceras/atributos, teclas, opciones Mongo,
-  encoding y paths de modulos pertenecen al contrato tecnico del framework.
-- Tokens, CSRF, IDs, enlaces recibidos, fechas/mes actual y URLs de entorno se obtienen en runtime.
-  Las cuentas API derivan un email unico con UUID del email ficticio del JSON; las expectativas comparan
-  con el email realmente preparado. La conexion Mongo usa `mongoURL` de configuracion.
-- Matchers estructurales (`expect.any(String)`, visibilidad, foco, ausencia de propiedades secretas) no
-  inventan un valor de negocio. Los patrones de tokens/hashes que ya se comprobaban viven en `expected`;
-  patrones de router, inspeccion OpenAPI y guardias de entorno siguen siendo contratos tecnicos.
-- El seed de la demo se restablece por la UI: su identidad y balance se comprueban con los expected JSON;
-  no se modifica la aplicacion para hacerlos pasar ni se simula sincronizacion de servidor.
+- Titulos, pasos numerados y motivos de `skip` se mantienen como literales.
+- Rutas relativas/hash, endpoints, claves de respuesta/cabeceras/atributos, teclas, opciones Mongo,
+  encoding y paths de modulos son parte del contrato del framework.
+- Obten tokens, CSRF, IDs, enlaces recibidos, fechas/mes actual y URLs de entorno en runtime.
+  Cada cuenta API deriva un email unico con UUID desde el email ficticio del JSON y lo compara con el realmente
+  preparado. La conexion Mongo toma `mongoURL` de configuracion.
+- Los matchers estructurales (`expect.any(String)`, visibilidad, foco y ausencia de propiedades secretas)
+  no fijan un resultado de negocio. `expected` conserva los patrones de tokens/hashes ya comprobados;
+  los de router, inspeccion OpenAPI y guardias de entorno permanecen como contratos tecnicos.
+- Reinicia el seed demo mediante la UI y comprueba identidad y balance con expected JSON.
+  No ajustes la aplicacion para obtener un aprobado ni simules sincronizacion de servidor.
 
 **Escribir tests**
 
-- Un escenario por test, un test por archivo, archivo con el mismo nombre que el titulo y numeracion `TC01...` sin
-  saltos, independiente por suite. Al borrar o insertar se renumera.
-- Nombre que comunica el proposito. Todo test se divide en pasos numerados (`test.step('1. El usuario anade un gasto', ...)`):
-  cada paso es una accion con sus `expect` dentro y el nombre sigue `N. Sujeto + accion`, con numeracion consecutiva desde 1.
-  Los recorridos completos (por ejemplo TC15, Rocio y Pablo en un unico navegador con el panel mock) se prefieren a varios
-  tests que repiten los mismos pasos iniciales, pero nunca se agrupan escenarios de negocio distintos.
-- Sin logica en los specs (ni `for`, `while`, `if`, `switch`, `try`, ternarios, `Promise.all` o `.forEach`): los
-  specs se leen de arriba abajo y la logica va a Pages o fixtures. En tests con dos personas, cada una empieza con un
-  paso que abre su perfil y comprueba que es ella (`ProfilePage.nameHeading` y `emailText`); primero actua Ana con todo
-  lo suyo y despues Luis (o Rocio y Pablo alternando con el panel mock), repitiendo el codigo en vez de usar bucles.
-- Nunca se elimina ni se debilita una asercion para hacer pasar un test.
-- Los tests no se borran porque no se puedan ejecutar: se conservan con `// Requiere API real: ...` y `test.skip`.
-  Un omitido nunca cuenta como aprobado y siempre lleva motivo.
-- No se usa `test.only`, `test.fixme` ni `test.skip` para esconder defectos.
+- Define un escenario por test y un test por archivo. Archivo y titulo coinciden; cada suite mantiene su
+  numeracion `TC01...` sin saltos. Renumera al borrar o insertar.
+- El nombre identifica el proposito. Organiza todo test con `test.step('1. El usuario anade un gasto', ...)`:
+  una accion y sus `expect` por paso, nombres `N. Sujeto + accion` y numeros consecutivos desde 1.
+  Prioriza recorridos completos, como TC15 con Rocio y Pablo en un navegador y el panel mock, frente a repetir
+  inicios en varios tests. No mezcles escenarios de negocio distintos.
+- Presenta acciones explicitas en los specs, sin `for`, `while`, `if`, `switch`, `try`, ternarios,
+  `Promise.all` ni `.forEach`. La logica corresponde a Pages o fixtures.
+  Cada persona empieza abriendo su perfil y comprobando `ProfilePage.nameHeading` y `emailText`.
+  Completa primero el bloque de Ana y despues el de Luis; Rocio y Pablo pueden alternar con el panel mock.
+  Expresa cada bloque sin bucles, aunque requiera repetir codigo.
+- No elimines ni hagas menos exigentes las aserciones para conseguir un aprobado.
+- La falta de capacidad para ejecutar un caso no justifica borrarlo. Conserva `// Requiere API real: ...`
+  y `test.skip` con motivo. Un caso omitido no se contabiliza como aprobado.
+- `test.only`, `test.fixme` y `test.skip` no son soluciones para ocultar defectos.
 
 **Esperas y estabilidad**
 
-- Sincroniza con condiciones, no con pausas: aserciones web-first (`toBeVisible`, `toHaveURL`, `toHaveText`...).
-- Sin `waitForTimeout`, `networkidle` como espera generica, `force: true` ni acceso directo al DOM.
-- Si una accion depende de una respuesta concreta, se prepara la espera antes de lanzarla.
-- Un test intermitente es un defecto: se investiga la causa. Sin reintentos globales ni `continue-on-error`.
+- Espera estados observables mediante aserciones web-first (`toBeVisible`, `toHaveURL`, `toHaveText`...).
+- Excluye `waitForTimeout`, `networkidle` como espera generica, `force: true` y acceso directo al DOM.
+- Cuando la accion dependa de una respuesta concreta, establece su espera antes de ejecutarla.
+- Investiga la causa de los fallos intermitentes. No uses reintentos globales ni `continue-on-error`.
 
 **Diagnostico y reportes**
 
-- Informe HTML y JUnit; screenshot y trace solo en fallos, sin datos sensibles.
-- Resultados clasificados en aprobado, fallido, omitido con motivo y no ejecutado.
-- Ante un fallo se clasifica primero la causa (producto, test, Page, datos, entorno) antes de tocar nada.
+- Conserva informes HTML y JUnit, con screenshot y trace solo en fallos y sin datos sensibles.
+- Diferencia aprobado, fallido, omitido con motivo y no ejecutado.
+- Antes de corregir, determina si el origen es producto, test, Page, datos o entorno.
 
 **Calidad y CI**
 
-- Los mismos controles en local y en CI: `typecheck`, `lint`, `format:check` y `lint:arch`.
-- Las reglas de arquitectura las comprueba una maquina (`lint:arch`), no la memoria de quien revisa.
-- Pipeline separada: calidad y tests en push/PR; ejecucion nocturna independiente sobre la demo.
-- Permisos de solo lectura en los workflows y artefactos con retencion limitada.
-- Revisa periodicamente si cada abstraccion simplifica el mantenimiento: un buen framework no se mide por carpetas o
-  clases, sino porque los tests expresan intencion, la UI tiene propietarios claros y los fallos se diagnostican rapido.
+- Aplica `typecheck`, `lint`, `format:check` y `lint:arch` tanto en local como en CI.
+- Usa `lint:arch` para comprobar las reglas de arquitectura, ademas de su revision documental.
+- Manten separados calidad/tests en push/PR y la ejecucion nocturna sobre la demo.
+- Los workflows utilizan permisos de solo lectura y retencion limitada de artefactos.
+- Evalua las abstracciones por su utilidad para DuoBalance: tests que explican intencion, UI con propietarios
+  identificados y fallos faciles de investigar. El numero de carpetas o clases no acredita mantenibilidad.
 
 **Trabajo con agentes de IA**
 
-- El agente `Playwright SDET` (`.github/agents/playwright-sdet.agent.md`) sigue el flujo de `docs/AI_AGENT_WORKFLOW.md`: entender, planificar, implementar,
-  verificar, sanar y reportar.
-- Antes de crear nada consulta `docs/COMPONENT_INVENTORY.md`; si cambia algo en `src/`, lo actualiza (lo exige `lint:arch`).
-- No ejecuta suites de Playwright salvo peticion expresa; verifica con `typecheck`, `lint`, `format:check` y `lint:arch`.
-- Sin commit ni push automaticos salvo peticion expresa.
+- `Playwright SDET` (`.github/agents/playwright-sdet.agent.md`) aplica el procedimiento de `docs/AI_AGENT_WORKFLOW.md`:
+  Entender → Planificar → Implementar → Verificar → Corregir → Reportar.
+- Consulta `docs/COMPONENT_INVENTORY.md` antes de crear piezas y lo actualiza si cambia `src/`, como exige `lint:arch`.
+- Comprueba `typecheck`, `lint`, `format:check` y `lint:arch`; no ejecuta suites de Playwright sin peticion expresa.
+- Commit y push tambien requieren peticion expresa.
 ### Mantenimiento
 
 | Quiero...                          | Pasos                                                                                                                                  |
